@@ -1,0 +1,150 @@
+[
+    {
+        "state": "Abia",
+        "abb": "AB"
+    },
+    {
+        "state": "Adamawa",
+        "abb": "AD"
+    },
+    {
+        "state": "Akwa Ibom",
+        "abb": "AK"
+    },
+    {
+        "state": "Anambra",
+        "abb": "AN"
+    },
+    {
+        "state": "Bauchi",
+        "abb": "BA"
+    },
+    {
+        "state": "Bayelsa",
+        "abb": "BY"
+    },
+    {
+        "state": "Benue",
+        "abb": "BE"
+    },
+    {
+        "state": "Borno",
+        "abb": "BO"
+    },
+    {
+        "state": "Cross River",
+        "abb": "CR"
+    },
+    {
+        "state": "Delta",
+        "abb": "DE"
+    },
+    {
+        "state": "Ebonyi",
+        "abb": "EB"
+    },
+    {
+        "state": "Edo",
+        "abb": "ED"
+    },
+    {
+        "state": "Ekiti",
+        "abb": "EK"
+    },
+    {
+        "state": "Enugu",
+        "abb": "EN"
+    },
+    {
+        "state": "FCT - Abuja",
+        "abb": "FC"
+    },
+    {
+        "state": "Gombe",
+        "abb": "GO"
+    },
+    {
+        "state": "Imo",
+        "abb": "IM"
+    },
+    {
+        "state": "Jigawa",
+        "abb": "JI"
+    },
+    {
+        "state": "Kaduna",
+        "abb": "KD"
+    },
+    {
+        "state": "Kano",
+        "abb": "KN"
+    },
+    {
+        "state": "Katsina",
+        "abb": "KT"
+    },
+    {
+        "state": "Kebbi",
+        "abb": "KE"
+    },
+    {
+        "state": "Kogi",
+        "abb": "KO"
+    },
+    {
+        "state": "Kwara",
+        "abb": "KW"
+    },
+    {
+        "state": "Lagos",
+        "abb": "LA"
+    },
+    {
+        "state": "Nasarawa",
+        "abb": "NA"
+    },
+    {
+        "state": "Niger",
+        "abb": "NI"
+    },
+    {
+        "state": "Ogun",
+        "abb": "OG"
+    },
+    {
+        "state": "Ondo",
+        "abb": "ON"
+    },
+    {
+        "state": "Osun",
+        "abb": "OS"
+    },
+    {
+        "state": "Oyo",
+        "abb": "OY"
+    },
+    {
+        "state": "Plateau",
+        "abb": "PL"
+    },
+    {
+        "state": "Rivers",
+        "abb": "RI"
+    },
+    {
+        "state": "Sokoto",
+        "abb": "SO"
+    },
+    {
+        "state": "Taraba",
+        "abb": "TA"
+    },
+    {
+        "state": "Yobe",
+        "abb": "YO"
+    },
+    {
+        "state": "Zamfara",
+        "abb": "ZA"
+    }
+]

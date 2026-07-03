@@ -1,0 +1,23 @@
+<svg width="375" height="417" viewBox="0 0 375 417" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g style="mix-blend-mode:multiply" opacity="0.2">
+<rect x="233.789" y="153.932" width="102.171" height="102.171" rx="16" transform="rotate(-90 233.789 153.932)" fill="#E5E7EB"/>
+</g>
+<g style="mix-blend-mode:multiply" opacity="0.2">
+<rect x="335.961" y="190.826" width="38.517" height="38.1115" rx="16" transform="rotate(-90 335.961 190.826)" fill="#E5E7EB"/>
+</g>
+<g style="mix-blend-mode:multiply" opacity="0.1">
+<rect x="234.311" y="368.135" width="139.762" height="139.762" rx="16" transform="rotate(-90 234.311 368.135)" fill="#EDC239"/>
+</g>
+<g style="mix-blend-mode:multiply" opacity="0.2">
+<rect y="178.309" width="177.31" height="177.31" rx="16" transform="rotate(-90 0 178.309)" fill="url(#paint0_linear_11895_43034)"/>
+</g>
+<g style="mix-blend-mode:multiply" opacity="0.2">
+<rect x="70.291" y="416.113" width="96.6512" height="96.6512" rx="16" transform="rotate(-90 70.291 416.113)" fill="#E5E7EB"/>
+</g>
+<defs>
+<linearGradient id="paint0_linear_11895_43034" x1="0" y1="266.963" x2="177.31" y2="266.963" gradientUnits="userSpaceOnUse">
+<stop stop-color="#D3CCE3"/>
+<stop offset="1" stop-color="#E9E4F0"/>
+</linearGradient>
+</defs>
+</svg>
