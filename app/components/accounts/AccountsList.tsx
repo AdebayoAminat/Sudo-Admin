@@ -374,6 +374,7 @@ export default function AccountsList({
   search: string;
   onSearchChange: (search: string) => void;
   onSelectAccount: (account: AccountResponseItem) => void;
+  
 }) {
   const [allAccounts, setAllAccounts] = useState<AccountResponseItem[]>([]);
   const [loading, setLoading] = useState(true);

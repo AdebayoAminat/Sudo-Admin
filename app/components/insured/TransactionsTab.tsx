@@ -438,8 +438,8 @@ useEffect(() => {
         '',   // status
         '',   // membershipId
       );
-      if (res?.data) {
-        setTransactions(Array.isArray(res.data?.data) ? res.data.data : []);
+      if ((res as any)?.data) {
+        setTransactions(Array.isArray((res as any).data?.data) ? (res as any).data.data : []);
       }
     } catch (err) {
       console.error("Failed to fetch transactions:", err);

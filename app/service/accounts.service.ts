@@ -26,7 +26,16 @@ export interface TransactionResponseItem {
   _id: string;
   type: string;
   amount: number;
-  currency: "USD" | "NGN";
+  currency: string;
+  status: string;
+  providerChannel: string;
+  paymentReference: string;
+  account: string;
+  accountNumber: string;
+  accountName: string;
+  bankCode: string;
+  provider: string;
+  providerReference: string;
   reference: string;
   narration?: string;
   createdAt: string;

@@ -645,8 +645,8 @@ export default function InsuredOrganizationsDashboard() {
           "Organization",
           ""
         );
-        if (res?.data) {
-          setOrganizations(Array.isArray(res.data?.data) ? res.data.data : []);
+        if ((res as any)?.data) {
+          setOrganizations(Array.isArray((res as any).data?.data) ? (res as any).data.data : []);
         }
       } catch (err) {
         console.error("Failed to fetch organizations:", err);
@@ -671,8 +671,8 @@ export default function InsuredOrganizationsDashboard() {
       setLoadingBiz(true);
       try {
         const res = await insuredService.getOrganizationBusinesses(selectedOrgId);
-        if (res?.data) {
-          setLinkedBusinesses(Array.isArray(res.data?.data) ? res.data.data : []);
+        if ((res as any)?.data) {
+          setLinkedBusinesses(Array.isArray((res as any).data?.data) ? (res as any).data.data : []);
         }
       } catch (err) {
         console.error("Failed to fetch businesses:", err);

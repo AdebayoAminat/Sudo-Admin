@@ -233,8 +233,8 @@ export default function CardOrdersTab() {
       setLoading(true);
       try {
         const res = await insuredService.getCardOrders(currentPage, pageSize);
-        if (res?.data) {
-          setOrders(Array.isArray(res.data?.data) ? res.data.data : []);
+        if ((res as any)?.data) {
+          setOrders(Array.isArray((res as any).data?.data) ? (res as any).data.data : []);
         }
       } catch (err) {
         console.error("Failed to fetch card orders:", err);
@@ -260,7 +260,7 @@ export default function CardOrdersTab() {
         orderId: selectedOrder._id,
         status: chosenStatus,
       });
-      if (res?.status === 200 || res?.data) {
+      if ((res as any)?.status === 200 || (res as any)?.data) {
         // Update locally so UI reflects change immediately
         setOrders((prev) =>
           prev.map((o) => (o._id === selectedOrder._id ? { ...o, status: chosenStatus } : o))

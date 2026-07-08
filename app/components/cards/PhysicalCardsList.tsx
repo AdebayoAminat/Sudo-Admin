@@ -582,9 +582,10 @@ import CardsService from "@/app/service/cards.service";
 
 interface ListProps {
   onSelect: (id: string) => void;
+  type: string;
 }
 
-export default function PhysicalCardsList({ onSelect }: ListProps) {
+export default function PhysicalCardsList({ onSelect, type }: ListProps) {
   const cardsService = useMemo(() => new CardsService(), []);
 
   // State Management

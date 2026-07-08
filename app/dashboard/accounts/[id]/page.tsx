@@ -775,9 +775,9 @@ export default function AccountDetailsPage({ params }: PageProps) {
       {/* Dynamic Header Block Card Container */}
       <div className="flex justify-between items-start">
         <div>
-          <h2 className="text-[18px] font-bold text-[#1D2939]">{resolvedTitle || "Sudo Settlement Account"}</h2>
+          <h2 className="text-[18px] font-bold text-[#1D2939]">{resolvedTitle}</h2>
           <span className="bg-blue-50 text-[#034EA2] text-[10px] px-2 py-0.5 rounded mt-2 inline-block font-bold">
-            {resolvedType || "Current"}
+            {resolvedType }
           </span>
         </div>
 

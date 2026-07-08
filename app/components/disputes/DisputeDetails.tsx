@@ -234,11 +234,11 @@ export default function DisputeDetails({ id }: { id: string }) {
   const cardHolderName = data.transaction?.customer?.name || "SUDO / CUSTOMER";
   const cardExpiry = data.transaction?.card?.expiryMonth && data.transaction?.card?.expiryYear
     ? `${data.transaction.card.expiryMonth}/${data.transaction.card.expiryYear}`
-    : "12/2029";
+    : "";
 
   // Data Array Maps preserving your layout mapping architecture
   const disputeInfo = [
-    { label: "Transaction", value: data.transaction?._id },
+    { label: "Transaction", value: data.transaction?._id, isLink: true },
     { label: "Reason", value: data.reason  },
     { label: "Explanation", value: data.explanation },
     { label: "Amount", value: formattedDisputeAmount },

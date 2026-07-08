@@ -745,8 +745,8 @@ export default function AgentsTab() {
       setLoadingAgents(true);
       try {
         const res = await insuredService.getBusinessPOSorLocations(currentPage, pageSize, "Agent", "");
-        if (res?.data) {
-          setAgents(Array.isArray(res.data?.data) ? res.data.data : []);
+        if ((res as any)?.data) {
+          setAgents(Array.isArray((res as any).data?.data) ? (res as any).data.data : []);
         }
       } catch (err) {
         console.error("Failed to fetch agents:", err);
@@ -772,8 +772,8 @@ export default function AgentsTab() {
         if (!membershipId) return;
 
         const res = await insuredService.getLocations(membershipId, currentPage, pageSize);
-        if (res?.data) {
-          setLocations(Array.isArray(res.data?.data) ? res.data.data : []);
+        if ((res as any)?.data) {
+          setLocations(Array.isArray((res as any).data?.data) ? (res as any).data.data : []);
         }
       } catch (err) {
         console.error("Failed to fetch locations:", err);
@@ -799,8 +799,8 @@ export default function AgentsTab() {
         const res = await insuredService.getInsuredTransactions(
           currentPage, pageSize, "", "", "", "", membershipId || ""
         );
-        if (res?.data) {
-          setTransactions(Array.isArray(res.data?.data) ? res.data.data : []);
+        if ((res as any)?.data) {
+          setTransactions(Array.isArray((res as any).data?.data) ? (res as any).data.data : []);
         }
       } catch (err) {
         console.error("Failed to fetch transactions:", err);

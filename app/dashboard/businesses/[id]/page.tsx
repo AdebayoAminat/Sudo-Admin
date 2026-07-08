@@ -850,6 +850,8 @@ import DisputesTab from "@/app/components/business-tabs/DisputesTab";
 import BusinessService from "@/app/service/businesses.service";
 import KycTabWrapper from "@/app/components/business-tabs/kyc/KycTabWrapper";
 import WebhookNotifications from "@/app/components/business-tabs/WebhookNotificationsTab";
+import NotificationSettingsTabs from "@/app/components/business-tabs/NotificationsSettingsTab";
+import ActionsTab from "@/app/components/business-tabs/ActionsTab";
 
 // Reusable Input Component
 const FormInput = ({
@@ -1068,7 +1070,11 @@ export default function BusinessDetailsPage({
           <KycTabWrapper businessId={id} />
         ) : activePrimaryTab === "Webhook Notifications" ? (
           <WebhookNotifications businessId={id} />
-        ) :(
+        ) : activePrimaryTab === "Notifications settings" ? (
+          <NotificationSettingsTabs/>
+        ) : activePrimaryTab === "Actions" ? (
+          <ActionsTab/>
+        ) : (
           
           <div className="p-20 text-center text-gray-400">
             Records for{" "}

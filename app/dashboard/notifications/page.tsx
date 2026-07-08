@@ -192,14 +192,14 @@ import NotificationsService from "@/app/service/notifications.service";
 
 export interface NotificationItem {
   id: string;
-  _id?: string; // fallback matching standard database shapes
+  _id?: string; 
   dateTime?: string;
   createdAt?: string;
   initiator?: string;
   subtitle: string;
   message: string;
   channel: string;
-  status: "APPROVED" | "SUBMITTED" | "REJECTED";
+  status: string;
 }
 
 const NotificationsPage = () => {
@@ -359,9 +359,9 @@ const NotificationsPage = () => {
                 >
                   <td className="px-6 py-6 text-[12px] text-gray-400 whitespace-nowrap align-top">{displayTime}</td>
                   <td className="px-6 py-6 text-[13px] text-gray-500 align-top">{n.initiator || "System"}</td>
-                  <td className="px-6 py-6 text-[13px] font-medium text-[#1D2939] max-w-[200px] align-top leading-relaxed">{n.data.body.subtitle}</td>
-                  <td className="px-6 py-6 text-[13px] text-gray-400 max-w-[400px] align-top leading-relaxed">{n.data.body.message}</td>
-                  <td className="px-6 py-6 text-[11px] font-bold text-gray-500 align-top uppercase">{n.data.body.channel}</td>
+                  <td className="px-6 py-6 text-[13px] font-medium text-[#1D2939] max-w-[200px] align-top leading-relaxed">{(n as any).data.body.subtitle}</td>
+                  <td className="px-6 py-6 text-[13px] text-gray-400 max-w-[400px] align-top leading-relaxed">{(n as any).data.body.message}</td>
+                  <td className="px-6 py-6 text-[11px] font-bold text-gray-500 align-top uppercase">{(n as any).data.body.channel}</td>
                   <td className="px-6 py-6 align-top">
                     <span className={`px-3 py-1 rounded-full text-[10px] font-bold ${
                       n.status === 'APPROVED' ? 'bg-green-50 text-green-600' :

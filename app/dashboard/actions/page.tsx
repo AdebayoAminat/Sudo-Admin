@@ -365,7 +365,7 @@ export interface ActionItem {
   action?: string;
   createdAt: string;
   time?: string;
-  status: "APPROVED" | "SUBMITTED" | "REJECTED";
+  status: string;
 }
 
 const ActionsPage = () => {

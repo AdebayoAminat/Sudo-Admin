@@ -144,8 +144,8 @@ export default function TerminalsTab() {
       setLoading(true);
       try {
         const res = await insuredService.getAllTerminals(currentPage, pageSize, "");
-        if (res?.data) {
-          const data = res.data?.data?.data;
+        if ((res as any)?.data) {
+          const data = (res as any).data?.data?.data;
           setTerminals(Array.isArray(data) ? data : []);
         }
       } catch (err) {

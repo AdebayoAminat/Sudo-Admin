@@ -324,8 +324,8 @@ export default function AuthorizationDetails({ id }: Props) {
   const isApproved = authData.status === "Approved" || authData.status === "Success";
   const formattedDate = authData.createdAt || authData.date || "N/A";
 
-  const detailsRows = [
-    { label: "Account", value: authData.account.accountName },
+  const detailsRows: Array<{ label: string; value: string; isLink?: boolean }> = [
+    { label: "Account", value: authData.account.accountName, isLink: true },
     { label: "Type", value: authData.transactionMetadata.type },
     { label: "Amount", value: displayAmount },
     { label: "Fee", value: authData.fee !== undefined ? `₦${authData.fee}` : "N/A" },
@@ -484,7 +484,7 @@ export default function AuthorizationDetails({ id }: Props) {
                   {merchantLabel}
                 </p>
                 <p className="text-[12px] text-[#98A2B3] font-medium">
-                  {authData.merchant?.category || "Commercial Outlets"}
+                  {authData.merchant?.category}
                 </p>
               </div>
             </div>

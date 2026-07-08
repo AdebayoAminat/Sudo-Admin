@@ -6,7 +6,8 @@ interface AccountCardProps {
   subTitle: string;
   currency: "USD" | "NGN";
   balance: string;
-  onClick?: () => void; // Added for navigation
+  onClick?: () => void;
+  type?: string;
 }
 
 export const AccountCard = ({
@@ -15,6 +16,7 @@ export const AccountCard = ({
   currency,
   balance,
   onClick,
+  type,
 }: AccountCardProps) => {
   const flagSrc =
     currency === "NGN" ? "/images/ng-flag.svg" : "/images/us-flag.svg";
