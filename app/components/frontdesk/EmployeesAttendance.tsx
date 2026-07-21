@@ -227,15 +227,525 @@
 
   // export default EmployeesAttendance;
 
-  "use client";
+//   "use client";
+
+// import React, { useState, useEffect, useMemo } from "react";
+// import Image from "next/image";
+// import { X, ChevronUp, ChevronDown } from "lucide-react";
+// import FrontDeskService from "@/app/service/frontdesk.service";
+// import employeesData from "@/assets/employees.json";
+
+// const frontDeskService = new FrontDeskService();
+
+// const EmployeesAttendance = () => {
+//   const [searchQuery, setSearchQuery] = useState("");
+//   const [isFilterOpen, setIsFilterOpen] = useState(false);
+//   const [dateAccordionOpen, setDateAccordionOpen] = useState(false);
+//   const [employeeAccordionOpen, setEmployeeAccordionOpen] = useState(false);
+//   const [startDate, setStartDate] = useState("");
+//   const [endDate, setEndDate] = useState("");
+//   const [appliedStart, setAppliedStart] = useState("");
+//   const [appliedEnd, setAppliedEnd] = useState("");
+//   const [selectedEmployee, setSelectedEmployee] = useState<any>(null);
+//   const [appliedEmployee, setAppliedEmployee] = useState<any>(null);
+//   const [employeeSearch, setEmployeeSearch] = useState("");
+//   const [appliedCount, setAppliedCount] = useState(0);
+//   const [attendance, setAttendance] = useState<any[]>([]);
+//   const [loading, setLoading] = useState(true);
+//   const [downloading, setDownloading] = useState(false);
+
+//   useEffect(() => {
+//     const fetchAttendance = async () => {
+//       setLoading(true);
+//       try {
+//         const res = await frontDeskService.getEmployeesAttendance();
+//         if (res?.data) {
+//           setAttendance(Array.isArray(res.data?.data) ? res.data.data : []);
+//         }
+//       } catch (err) {
+//         console.error("Failed to fetch employees attendance:", err);
+//       } finally {
+//         setLoading(false);
+//       }
+//     };
+//     fetchAttendance();
+//   }, []);
+
+//   // Employees from JSON for the filter dropdown
+//   const employeesList: any[] = Array.isArray(employeesData) ? employeesData : [];
+
+//   const filteredEmployeeOptions = employeesList.filter((emp: any) =>
+//     (emp.name || emp.employeeName || "")
+//       .toLowerCase()
+//       .includes(employeeSearch.toLowerCase())
+//   );
+
+//   const currentFilterCount = useMemo(() => {
+//     let count = 0;
+//     if (startDate || endDate) count++;
+//     if (selectedEmployee) count++;
+//     return count;
+//   }, [startDate, endDate, selectedEmployee]);
+
+//   const handleClearAll = () => {
+//     setStartDate("");
+//     setEndDate("");
+//     setAppliedStart("");
+//     setAppliedEnd("");
+//     setSelectedEmployee(null);
+//     setAppliedEmployee(null);
+//     setEmployeeSearch("");
+//     setAppliedCount(0);
+//     setDateAccordionOpen(false);
+//     setEmployeeAccordionOpen(false);
+//   };
+
+//   const handleApply = () => {
+//     setAppliedStart(startDate);
+//     setAppliedEnd(endDate);
+//     setAppliedEmployee(selectedEmployee);
+//     setAppliedCount(currentFilterCount);
+//     setIsFilterOpen(false);
+//   };
+
+//   const formatDate = (dateStr: string) => {
+//     if (!dateStr) return "";
+//     return new Date(dateStr).toLocaleString("en-US", {
+//       month: "short", day: "numeric", year: "numeric",
+//       hour: "numeric", minute: "2-digit", second: "2-digit", hour12: true,
+//     });
+//   };
+
+//   const formatDateShort = (dateStr: string) => {
+//     if (!dateStr) return "";
+//     return new Date(dateStr).toLocaleDateString("en-GB", {
+//       day: "2-digit", month: "2-digit", year: "numeric",
+//     });
+//   };
+
+//   // Filter attendance by date range + employee
+//   const filteredData = useMemo(() => {
+//     return attendance.filter((row) => {
+//       const matchesSearch = searchQuery
+//         ? (row.employeeName || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+//           (row.employeeNo || "").toLowerCase().includes(searchQuery.toLowerCase())
+//         : true;
+
+//       let matchesDate = true;
+//       if (appliedStart || appliedEnd) {
+//         const checkInTime = row.checkIn ? new Date(row.checkIn).getTime() : null;
+//         if (!checkInTime) return false;
+//         if (appliedStart) {
+//           const start = new Date(appliedStart).setHours(0, 0, 0, 0);
+//           if (checkInTime < start) matchesDate = false;
+//         }
+//         if (appliedEnd) {
+//           const end = new Date(appliedEnd).setHours(23, 59, 59, 999);
+//           if (checkInTime > end) matchesDate = false;
+//         }
+//       }
+
+//       const matchesEmployee = appliedEmployee
+//         ? (row.employeeNo || "").toLowerCase() === (appliedEmployee.employeeNo || appliedEmployee.id || "").toLowerCase() ||
+//           (row.employeeName || "").toLowerCase().includes(
+//             (appliedEmployee.name || appliedEmployee.employeeName || "").toLowerCase()
+//           )
+//         : true;
+
+//       return matchesSearch && matchesDate && matchesEmployee;
+//     });
+//   }, [attendance, searchQuery, appliedStart, appliedEnd, appliedEmployee]);
+
+//   // Download handler
+//   const handleDownload = async () => {
+//     setDownloading(true);
+//     try {
+//       let data: any[] = [];
+
+//       if (appliedEmployee) {
+//         // Single employee — call getSingleEmployeeData
+//         const empId = appliedEmployee.employeeNo || appliedEmployee.id;
+//         const res = await frontDeskService.getSingleEmployeeData(empId);
+//         data = Array.isArray(res?.data?.data) ? res.data.data : [];
+//       } else {
+//         // All employees — call getAllEmployeesData
+//         const res = await frontDeskService.getAllEmployeesData();
+//         data = Array.isArray(res?.data?.data) ? res.data.data : [];
+//       }
+
+//       if (!data.length) return;
+
+//       // Build HTML sheet styled like the image
+//       const rows = data.map((row: any) => `
+//         <tr>
+//           <td>${formatDateShort(row.date || row.checkIn)}</td>
+//           <td>${formatDate(row.checkIn)}</td>
+//           <td>${row.employeeNo || "—"}</td>
+//           <td>${row.employeeName || "—"}</td>
+//           <td>${row.employeePhoneNumber || "—"}</td>
+//           <td>${row.checkInOffice || row.office || "—"}</td>
+//           <td>${row.checkOut ? formatDate(row.checkOut) : ""}</td>
+//           <td>${row.logs || ""}</td>
+//         </tr>
+//       `).join("");
+
+//       const html = `
+//         <!DOCTYPE html>
+//         <html>
+//           <head>
+//             <title>Attendance Report</title>
+//             <style>
+//               body { font-family: Arial, sans-serif; padding: 24px; background: #fff; color: #000; }
+//               h2 { font-size: 14px; font-weight: bold; margin-bottom: 16px; }
+//               table { width: 100%; border-collapse: collapse; font-size: 11px; }
+//               th { background: #f5f5f5; font-weight: bold; text-align: left; padding: 8px 10px; border: 1px solid #e0e0e0; }
+//               td { padding: 7px 10px; border: 1px solid #e0e0e0; }
+//               tr:nth-child(even) { background: #fafafa; }
+//             </style>
+//           </head>
+//           <body>
+//             <h2>Attendance Report${appliedEmployee ? ` — ${appliedEmployee.name || appliedEmployee.employeeName}` : ""}</h2>
+//             <table>
+//               <thead>
+//                 <tr>
+//                   <th>DATE</th>
+//                   <th>CHECKIN AT</th>
+//                   <th>EMPLOYEE ID</th>
+//                   <th>EMPLOYEE NAME</th>
+//                   <th>PHONE NO</th>
+//                   <th>OFFICE</th>
+//                   <th>CHECKOUT AT</th>
+//                   <th>LOGS</th>
+//                 </tr>
+//               </thead>
+//               <tbody>${rows}</tbody>
+//             </table>
+//           </body>
+//         </html>
+//       `;
+
+//       const blob = new Blob([html], { type: "text/html" });
+//       const url = URL.createObjectURL(blob);
+//       const link = document.createElement("a");
+//       link.href = url;
+//       link.download = `attendance_${appliedEmployee ? (appliedEmployee.name || "employee").replace(/\s+/g, "_") : "all"}_${new Date().toISOString().split("T")[0]}.html`;
+//       link.click();
+//       URL.revokeObjectURL(url);
+//     } catch (err) {
+//       console.error("Failed to download attendance:", err);
+//     } finally {
+//       setDownloading(false);
+//     }
+//   };
+
+//   return (
+//     <div className="relative space-y-6 animate-in fade-in duration-500">
+
+//       {/* UTILITY BAR */}
+//       <div className="flex justify-between items-end">
+//         <p className="text-[12px] text-gray-400 font-medium pb-2">
+//           Showing{" "}
+//           <span className="text-[#1D2939] font-bold">
+//             {filteredData.length} Record{filteredData.length !== 1 ? "s" : ""}
+//           </span>
+//         </p>
+
+//         <div className="flex items-center gap-3">
+//           <div className="relative">
+//             <input
+//               type="text"
+//               placeholder="Employee name or ID..."
+//               value={searchQuery}
+//               onChange={(e) => setSearchQuery(e.target.value)}
+//               className="w-[280px] h-[44px] pl-4 pr-10 bg-[#F9FAFB] border border-gray-100 rounded-lg text-[12px] outline-none"
+//             />
+//             <div className="absolute right-3 top-1/2 -translate-y-1/2">
+//               <Image src="/images/search.svg" alt="Search" width={16} height={16} />
+//             </div>
+//           </div>
+
+//           <button
+//             onClick={() => setIsFilterOpen(!isFilterOpen)}
+//             className="flex items-center gap-2 px-4 h-[44px] text-[12px] font-bold text-[#1D2939] hover:bg-gray-50 rounded-lg transition-all"
+//           >
+//             <div className="relative">
+//               <Image src="/images/filter.svg" alt="Filter" width={16} height={16} />
+//               <span className="absolute -top-1.5 -right-1.5 w-3.5 h-3.5 bg-[#1D2939] text-white text-[8px] rounded-full flex items-center justify-center">
+//                 {appliedCount}
+//               </span>
+//             </div>
+//             Filter(s)
+//           </button>
+
+//           <button
+//             onClick={handleDownload}
+//             disabled={downloading}
+//             className="flex items-center gap-2 px-4 h-[44px] bg-[#0A1629] text-white text-[12px] font-bold rounded-lg hover:bg-black transition-all disabled:opacity-60"
+//           >
+           
+//             {downloading ? "Downloading..." : "Download"}
+//           </button>
+//         </div>
+//       </div>
+
+//       {/* FILTER DROPDOWN */}
+//       {isFilterOpen && (
+//         <>
+//           <div className="fixed inset-0 z-20" onClick={() => setIsFilterOpen(false)} />
+//           <div className="absolute right-0 top-14 w-[380px] bg-white rounded-xl shadow-2xl z-30 border border-gray-100 animate-in slide-in-from-top-2 duration-200">
+//             <div className="p-5 border-b border-gray-50 flex justify-between items-center">
+//               <h3 className="text-[14px] font-bold text-[#1D2939]">Filters</h3>
+//               <button onClick={() => setIsFilterOpen(false)}>
+//                 <X className="w-4 h-4 text-gray-400 hover:text-red-500 transition-colors" />
+//               </button>
+//             </div>
+
+//             <div className="p-5 space-y-5">
+//               <div className="flex justify-between items-center">
+//                 <div className="flex items-center gap-2 bg-[#EEF2FF] text-[#4F46E5] px-3 py-1.5 rounded-md text-[11px] font-bold">
+//                   {currentFilterCount} filter(s) selected
+//                 </div>
+//                 <button onClick={handleClearAll} className="text-[11px] font-bold text-[#1D2939] underline hover:text-blue-600">
+//                   Clear All
+//                 </button>
+//               </div>
+
+//               {/* DATE RANGE ACCORDION */}
+//               <div className="space-y-2 border-b border-gray-50 pb-4">
+//                 <button
+//                   onClick={() => setDateAccordionOpen(!dateAccordionOpen)}
+//                   className="w-full flex justify-between items-center text-[12px] font-bold text-[#1D2939]"
+//                 >
+//                   <span>Date Range</span>
+//                   {dateAccordionOpen ? (
+//                     <ChevronUp className="w-4 h-4 text-gray-400" />
+//                   ) : (
+//                     <ChevronDown className="w-4 h-4 text-gray-400" />
+//                   )}
+//                 </button>
+
+//                 {dateAccordionOpen && (
+//                   <div className="space-y-2 animate-in slide-in-from-top-1 duration-200 pt-1">
+//                     <div className="flex flex-col gap-1">
+//                       <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">From</label>
+//                       <input
+//                         type="date"
+//                         value={startDate}
+//                         onChange={(e) => setStartDate(e.target.value)}
+//                         className="border border-gray-100 rounded-lg p-2.5 bg-[#F9FAFB] outline-none text-[12px] text-gray-600 w-full"
+//                       />
+//                     </div>
+//                     <div className="flex flex-col gap-1">
+//                       <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">To</label>
+//                       <input
+//                         type="date"
+//                         value={endDate}
+//                         min={startDate}
+//                         onChange={(e) => setEndDate(e.target.value)}
+//                         className="border border-gray-100 rounded-lg p-2.5 bg-[#F9FAFB] outline-none text-[12px] text-gray-600 w-full"
+//                       />
+//                     </div>
+//                     {startDate && endDate && (
+//                       <p className="text-[10px] text-[#4F46E5] font-medium pt-1">
+//                         {new Date(startDate).toDateString()} → {new Date(endDate).toDateString()}
+//                       </p>
+//                     )}
+//                   </div>
+//                 )}
+//               </div>
+
+//               {/* EMPLOYEE ACCORDION */}
+//               <div className="space-y-2 pb-2">
+//                 <button
+//                   onClick={() => setEmployeeAccordionOpen(!employeeAccordionOpen)}
+//                   className="w-full flex justify-between items-center text-[12px] font-bold text-[#1D2939]"
+//                 >
+//                   <span>Employee {selectedEmployee ? `— ${selectedEmployee.name || selectedEmployee.employeeName}` : ""}</span>
+//                   {employeeAccordionOpen ? (
+//                     <ChevronUp className="w-4 h-4 text-gray-400" />
+//                   ) : (
+//                     <ChevronDown className="w-4 h-4 text-gray-400" />
+//                   )}
+//                 </button>
+
+//                 {employeeAccordionOpen && (
+//                   <div className="animate-in slide-in-from-top-1 duration-200 space-y-2 pt-1">
+//                     <input
+//                       type="text"
+//                       placeholder="Search employee..."
+//                       value={employeeSearch}
+//                       onChange={(e) => setEmployeeSearch(e.target.value)}
+//                       className="w-full border border-gray-100 rounded-lg px-3 py-2 bg-[#F9FAFB] outline-none text-[12px] text-gray-600"
+//                     />
+//                     <div className="max-h-[180px] overflow-y-auto divide-y divide-gray-50 border border-gray-100 rounded-lg">
+//                       {filteredEmployeeOptions.map((emp: any, i: number) => (
+//                         <button
+//                           key={i}
+//                           onClick={() => {
+//                             setSelectedEmployee(emp);
+//                             setEmployeeSearch("");
+//                           }}
+//                           className={`w-full text-left px-3 py-2.5 text-[12px] transition-colors ${
+//                             selectedEmployee?._id === emp._id
+//                               ? "bg-[#EEF2FF] text-[#4F46E5] font-bold"
+//                               : "hover:bg-gray-50 text-[#1D2939]"
+//                           }`}
+//                         >
+//                           <span className="font-medium">{emp.name || emp.employeeName}</span>
+//                           {(emp.employeeNo || emp.id) && (
+//                             <span className="text-gray-400 ml-2 text-[10px]">#{emp.employeeNo || emp.id}</span>
+//                           )}
+//                         </button>
+//                       ))}
+//                       {filteredEmployeeOptions.length === 0 && (
+//                         <p className="text-center py-4 text-[11px] text-gray-400">No employees found</p>
+//                       )}
+//                     </div>
+//                     {selectedEmployee && (
+//                       <button
+//                         onClick={() => setSelectedEmployee(null)}
+//                         className="text-[10px] text-red-400 hover:text-red-600 font-medium"
+//                       >
+//                         Clear employee selection
+//                       </button>
+//                     )}
+//                   </div>
+//                 )}
+//               </div>
+
+//               <button
+//                 onClick={handleApply}
+//                 className="w-full bg-[#0A1629] text-white py-3.5 rounded-lg text-[12px] font-bold shadow-lg active:scale-[0.98] transition-all"
+//               >
+//                 Apply
+//               </button>
+//             </div>
+//           </div>
+//         </>
+//       )}
+
+//       {/* TABLE */}
+//       <div className="bg-white border border-gray-50 rounded-xl overflow-hidden shadow-sm">
+//         <table className="w-full text-left">
+//           <thead className="bg-gray-50/30">
+//             <tr className="text-[10px] font-bold text-[#1D2939] tracking-wider uppercase border-b border-gray-50">
+//               <th className="px-6 py-4">CHECKIN</th>
+//               <th className="px-6 py-4">EMPLOYEE NAME</th>
+//               <th className="px-6 py-4 text-center">CHECKIN AT</th>
+//               <th className="px-6 py-4">OFFICE</th>
+//               <th className="px-6 py-4 text-center">CHECKOUT AT</th>
+//               <th className="px-6 py-4 text-center">CHECKOUT</th>
+//               <th className="px-6 py-4 text-right">LOGS</th>
+//             </tr>
+//           </thead>
+//           <tbody className="divide-y divide-gray-50">
+//             {loading ? (
+//               [...Array(5)].map((_, i) => (
+//                 <tr key={i}>
+//                   <td colSpan={7} className="px-6 py-4">
+//                     <div className="h-10 bg-gray-100 rounded animate-pulse" />
+//                   </td>
+//                 </tr>
+//               ))
+//             ) : filteredData.length > 0 ? (
+//               filteredData.map((row, i) => (
+//                 <tr key={row._id || i} className="text-[12px] hover:bg-gray-50 transition-colors">
+
+//                   {/* CHECKIN PHOTO */}
+//                   <td className="px-6 py-5">
+//                     {row.photo ? (
+//                       <img
+//                         src={row.photo}
+//                         alt={row.employeeName}
+//                         className="w-10 h-10 rounded-full object-cover"
+//                       />
+//                     ) : (
+//                       <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-400 font-bold text-[10px]">
+//                         {(row.employeeName || "").charAt(0)}
+//                       </div>
+//                     )}
+//                   </td>
+
+//                   <td className="px-6 py-5">
+//                     <p className="font-bold text-[#1D2939]">{row.employeeName}</p>
+//                     <p className="text-[10px] text-gray-400">{row.employeeNo}</p>
+//                   </td>
+
+//                   <td className="px-6 py-5 text-gray-400 text-center whitespace-nowrap">
+//                     {formatDate(row.checkIn)}
+//                   </td>
+
+//                   <td className="px-6 py-5">
+//                     <span className="bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-[10px] font-bold uppercase whitespace-nowrap">
+//                       {row.checkInOffice || row.office}
+//                     </span>
+//                   </td>
+
+//                   <td className="px-6 py-5 text-gray-400 text-center whitespace-nowrap">
+//                     {row.checkOut ? formatDate(row.checkOut) : "—"}
+//                   </td>
+
+//                   {/* CHECKOUT PHOTO */}
+//                   <td className="px-6 py-5">
+//                     <div className="flex justify-center">
+//                       {row.checkOut && row.checkOutPhoto ? (
+//                         <img
+//                           src={row.checkOutPhoto}
+//                           alt={row.employeeName}
+//                           className="w-10 h-10 rounded-full object-cover"
+//                         />
+//                       ) : row.checkOut ? (
+//                         <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-400 font-bold text-[10px]">
+//                           {(row.employeeName || "").charAt(0)}
+//                         </div>
+//                       ) : (
+//                         <span className="text-gray-300 text-[11px]">—</span>
+//                       )}
+//                     </div>
+//                   </td>
+
+//                   <td className="px-6 py-5 text-right font-bold text-[#1D2939]">
+//                     {row.logs}
+//                   </td>
+//                 </tr>
+//               ))
+//             ) : (
+//               <tr>
+//                 <td colSpan={7} className="text-center py-16 text-gray-400 text-[12px] italic">
+//                   No records found{appliedCount > 0 ? " for the selected filters" : ""}.
+//                 </td>
+//               </tr>
+//             )}
+//           </tbody>
+//         </table>
+//       </div>
+//     </div>
+//   );
+// };
+
+// export default EmployeesAttendance;
+
+
+"use client";
 
 import React, { useState, useEffect, useMemo } from "react";
 import Image from "next/image";
-import { X, ChevronUp, ChevronDown } from "lucide-react";
+import { X, ChevronUp, ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
 import FrontDeskService from "@/app/service/frontdesk.service";
-import employeesData from "@/assets/employees.json";
+import employeesRaw from "@/assets/employees.json";
 
 const frontDeskService = new FrontDeskService();
+
+// Normalize employees.json — it has "First Name", "recordId" etc.
+const employeesList: any[] = (() => {
+  const raw: any = employeesRaw;
+  const arr = Array.isArray(raw) ? raw : raw?.data || [];
+  return arr.map((emp: any) => ({
+    name: `${emp["First Name"] || ""} ${emp["Last Name"] || emp["Surname"] || ""}`.trim(),
+
+    raw: emp,
+  }));
+})();
 
 const EmployeesAttendance = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -253,6 +763,10 @@ const EmployeesAttendance = () => {
   const [attendance, setAttendance] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [downloading, setDownloading] = useState(false);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+  const [totalCount, setTotalCount] = useState(0);
+  const pageSize = 25;
 
   useEffect(() => {
     const fetchAttendance = async () => {
@@ -260,7 +774,10 @@ const EmployeesAttendance = () => {
       try {
         const res = await frontDeskService.getEmployeesAttendance();
         if (res?.data) {
-          setAttendance(Array.isArray(res.data?.data) ? res.data.data : []);
+          const allData = Array.isArray(res.data?.data) ? res.data.data : [];
+          setAttendance(allData);
+          setTotalCount(res.data?.pagination?.total || allData.length);
+          setTotalPages(res.data?.pagination?.pages || Math.ceil(allData.length / pageSize));
         }
       } catch (err) {
         console.error("Failed to fetch employees attendance:", err);
@@ -269,15 +786,11 @@ const EmployeesAttendance = () => {
       }
     };
     fetchAttendance();
-  }, []);
+  }, [currentPage]);
 
-  // Employees from JSON for the filter dropdown
-  const employeesList: any[] = Array.isArray(employeesData) ? employeesData : [];
-
-  const filteredEmployeeOptions = employeesList.filter((emp: any) =>
-    (emp.name || emp.employeeName || "")
-      .toLowerCase()
-      .includes(employeeSearch.toLowerCase())
+  const filteredEmployeeOptions = employeesList.filter((emp) =>
+    emp.name.toLowerCase().includes(employeeSearch.toLowerCase()) ||
+    emp.employeeNo.toLowerCase().includes(employeeSearch.toLowerCase())
   );
 
   const currentFilterCount = useMemo(() => {
@@ -305,6 +818,7 @@ const EmployeesAttendance = () => {
     setAppliedEnd(endDate);
     setAppliedEmployee(selectedEmployee);
     setAppliedCount(currentFilterCount);
+    setCurrentPage(0);
     setIsFilterOpen(false);
   };
 
@@ -323,7 +837,14 @@ const EmployeesAttendance = () => {
     });
   };
 
-  // Filter attendance by date range + employee
+  // Logs count — 1 if only checkIn, 2 if checkIn + checkOut
+  const getLogsCount = (row: any): number => {
+    let count = 0;
+    if (row.checkIn) count++;
+    if (row.checkOut) count++;
+    return count;
+  };
+
   const filteredData = useMemo(() => {
     return attendance.filter((row) => {
       const matchesSearch = searchQuery
@@ -346,97 +867,87 @@ const EmployeesAttendance = () => {
       }
 
       const matchesEmployee = appliedEmployee
-        ? (row.employeeNo || "").toLowerCase() === (appliedEmployee.employeeNo || appliedEmployee.id || "").toLowerCase() ||
-          (row.employeeName || "").toLowerCase().includes(
-            (appliedEmployee.name || appliedEmployee.employeeName || "").toLowerCase()
-          )
+        ? (row.employeeNo || "").toLowerCase() === (appliedEmployee.employeeNo || "").toLowerCase() ||
+          (row.employeeName || "").toLowerCase().includes(appliedEmployee.name.toLowerCase())
         : true;
 
       return matchesSearch && matchesDate && matchesEmployee;
     });
   }, [attendance, searchQuery, appliedStart, appliedEnd, appliedEmployee]);
 
-  // Download handler
-  const handleDownload = async () => {
-    setDownloading(true);
-    try {
-      let data: any[] = [];
+  const buildHtmlReport = (data: any[], title: string) => {
+    const rows = data.map((row: any) => `
+      <tr>
+        <td>${formatDateShort(row.date || row.checkIn)}</td>
+        <td>${formatDate(row.checkIn)}</td>
+        <td>${row.employeeNo || "—"}</td>
+        <td>${row.employeeName || "—"}</td>
+        <td>${row.employeePhoneNumber || "—"}</td>
+        <td>${row.checkInOffice || row.office || "—"}</td>
+        <td>${row.checkOut ? formatDate(row.checkOut) : "—"}</td>
+        <td>${getLogsCount(row)}</td>
+      </tr>
+    `).join("");
 
-      if (appliedEmployee) {
-        // Single employee — call getSingleEmployeeData
-        const empId = appliedEmployee.employeeNo || appliedEmployee.id;
-        const res = await frontDeskService.getSingleEmployeeData(empId);
-        data = Array.isArray(res?.data?.data) ? res.data.data : [];
-      } else {
-        // All employees — call getAllEmployeesData
-        const res = await frontDeskService.getAllEmployeesData();
-        data = Array.isArray(res?.data?.data) ? res.data.data : [];
-      }
-
-      if (!data.length) return;
-
-      // Build HTML sheet styled like the image
-      const rows = data.map((row: any) => `
-        <tr>
-          <td>${formatDateShort(row.date || row.checkIn)}</td>
-          <td>${formatDate(row.checkIn)}</td>
-          <td>${row.employeeNo || "—"}</td>
-          <td>${row.employeeName || "—"}</td>
-          <td>${row.employeePhoneNumber || "—"}</td>
-          <td>${row.checkInOffice || row.office || "—"}</td>
-          <td>${row.checkOut ? formatDate(row.checkOut) : ""}</td>
-          <td>${row.logs || ""}</td>
-        </tr>
-      `).join("");
-
-      const html = `
-        <!DOCTYPE html>
-        <html>
-          <head>
-            <title>Attendance Report</title>
-            <style>
-              body { font-family: Arial, sans-serif; padding: 24px; background: #fff; color: #000; }
-              h2 { font-size: 14px; font-weight: bold; margin-bottom: 16px; }
-              table { width: 100%; border-collapse: collapse; font-size: 11px; }
-              th { background: #f5f5f5; font-weight: bold; text-align: left; padding: 8px 10px; border: 1px solid #e0e0e0; }
-              td { padding: 7px 10px; border: 1px solid #e0e0e0; }
-              tr:nth-child(even) { background: #fafafa; }
-            </style>
-          </head>
-          <body>
-            <h2>Attendance Report${appliedEmployee ? ` — ${appliedEmployee.name || appliedEmployee.employeeName}` : ""}</h2>
-            <table>
-              <thead>
-                <tr>
-                  <th>DATE</th>
-                  <th>CHECKIN AT</th>
-                  <th>EMPLOYEE ID</th>
-                  <th>EMPLOYEE NAME</th>
-                  <th>PHONE NO</th>
-                  <th>OFFICE</th>
-                  <th>CHECKOUT AT</th>
-                  <th>LOGS</th>
-                </tr>
-              </thead>
-              <tbody>${rows}</tbody>
-            </table>
-          </body>
-        </html>
-      `;
-
-      const blob = new Blob([html], { type: "text/html" });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = `attendance_${appliedEmployee ? (appliedEmployee.name || "employee").replace(/\s+/g, "_") : "all"}_${new Date().toISOString().split("T")[0]}.html`;
-      link.click();
-      URL.revokeObjectURL(url);
-    } catch (err) {
-      console.error("Failed to download attendance:", err);
-    } finally {
-      setDownloading(false);
-    }
+    return `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>${title}</title>
+          <style>
+            body { font-family: Arial, sans-serif; padding: 24px; background: #fff; color: #000; }
+            h2 { font-size: 14px; font-weight: bold; margin-bottom: 16px; }
+            table { width: 100%; border-collapse: collapse; font-size: 11px; }
+            th { background: #f5f5f5; font-weight: bold; text-align: left; padding: 8px 10px; border: 1px solid #e0e0e0; }
+            td { padding: 7px 10px; border: 1px solid #e0e0e0; }
+            tr:nth-child(even) { background: #fafafa; }
+          </style>
+        </head>
+        <body>
+          <h2>${title}</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>DATE</th>
+                <th>CHECKIN AT</th>
+                <th>EMPLOYEE ID</th>
+                <th>EMPLOYEE NAME</th>
+                <th>PHONE NO</th>
+                <th>OFFICE</th>
+                <th>CHECKOUT AT</th>
+                <th>LOGS</th>
+              </tr>
+            </thead>
+            <tbody>${rows}</tbody>
+          </table>
+        </body>
+      </html>
+    `;
   };
+
+  const handleDownload = () => {
+  if (!filteredData.length) {
+    alert("No data available to download.");
+    return;
+  }
+
+  const title = appliedEmployee
+    ? `Attendance Report — ${appliedEmployee.name}`
+    : "Attendance Report";
+
+  const html = buildHtmlReport(filteredData, title);
+  const blob = new Blob([html], { type: "text/html" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = `attendance_${
+    appliedEmployee
+      ? appliedEmployee.name.replace(/\s+/g, "_")
+      : "all"
+  }_${new Date().toISOString().split("T")[0]}.html`;
+  link.click();
+  URL.revokeObjectURL(url);
+};
 
   return (
     <div className="relative space-y-6 animate-in fade-in duration-500">
@@ -478,13 +989,12 @@ const EmployeesAttendance = () => {
           </button>
 
           <button
-            onClick={handleDownload}
-            disabled={downloading}
-            className="flex items-center gap-2 px-4 h-[44px] bg-[#0A1629] text-white text-[12px] font-bold rounded-lg hover:bg-black transition-all disabled:opacity-60"
-          >
-           
-            {downloading ? "Downloading..." : "Download"}
-          </button>
+  onClick={handleDownload}
+  className="flex items-center gap-2 px-4 h-[44px] bg-[#0A1629] text-white text-[12px] font-bold rounded-lg hover:bg-black transition-all"
+>
+  
+  Download
+</button>
         </div>
       </div>
 
@@ -517,11 +1027,7 @@ const EmployeesAttendance = () => {
                   className="w-full flex justify-between items-center text-[12px] font-bold text-[#1D2939]"
                 >
                   <span>Date Range</span>
-                  {dateAccordionOpen ? (
-                    <ChevronUp className="w-4 h-4 text-gray-400" />
-                  ) : (
-                    <ChevronDown className="w-4 h-4 text-gray-400" />
-                  )}
+                  {dateAccordionOpen ? <ChevronUp className="w-4 h-4 text-gray-400" /> : <ChevronDown className="w-4 h-4 text-gray-400" />}
                 </button>
 
                 {dateAccordionOpen && (
@@ -560,12 +1066,10 @@ const EmployeesAttendance = () => {
                   onClick={() => setEmployeeAccordionOpen(!employeeAccordionOpen)}
                   className="w-full flex justify-between items-center text-[12px] font-bold text-[#1D2939]"
                 >
-                  <span>Employee {selectedEmployee ? `— ${selectedEmployee.name || selectedEmployee.employeeName}` : ""}</span>
-                  {employeeAccordionOpen ? (
-                    <ChevronUp className="w-4 h-4 text-gray-400" />
-                  ) : (
-                    <ChevronDown className="w-4 h-4 text-gray-400" />
-                  )}
+                  <span>
+                    Employee{selectedEmployee ? ` — ${selectedEmployee.name}` : ""}
+                  </span>
+                  {employeeAccordionOpen ? <ChevronUp className="w-4 h-4 text-gray-400" /> : <ChevronDown className="w-4 h-4 text-gray-400" />}
                 </button>
 
                 {employeeAccordionOpen && (
@@ -578,26 +1082,27 @@ const EmployeesAttendance = () => {
                       className="w-full border border-gray-100 rounded-lg px-3 py-2 bg-[#F9FAFB] outline-none text-[12px] text-gray-600"
                     />
                     <div className="max-h-[180px] overflow-y-auto divide-y divide-gray-50 border border-gray-100 rounded-lg">
-                      {filteredEmployeeOptions.map((emp: any, i: number) => (
-                        <button
-                          key={i}
-                          onClick={() => {
-                            setSelectedEmployee(emp);
-                            setEmployeeSearch("");
-                          }}
-                          className={`w-full text-left px-3 py-2.5 text-[12px] transition-colors ${
-                            selectedEmployee?._id === emp._id
-                              ? "bg-[#EEF2FF] text-[#4F46E5] font-bold"
-                              : "hover:bg-gray-50 text-[#1D2939]"
-                          }`}
-                        >
-                          <span className="font-medium">{emp.name || emp.employeeName}</span>
-                          {(emp.employeeNo || emp.id) && (
-                            <span className="text-gray-400 ml-2 text-[10px]">#{emp.employeeNo || emp.id}</span>
-                          )}
-                        </button>
-                      ))}
-                      {filteredEmployeeOptions.length === 0 && (
+                      {filteredEmployeeOptions.length > 0 ? (
+                        filteredEmployeeOptions.map((emp, i) => (
+                          <button
+                            key={i}
+                            onClick={() => {
+                              setSelectedEmployee(emp);
+                              setEmployeeSearch("");
+                            }}
+                            className={`w-full text-left px-3 py-2.5 text-[12px] transition-colors ${
+                              selectedEmployee?.employeeNo === emp.employeeNo
+                                ? "bg-[#EEF2FF] text-[#4F46E5] font-bold"
+                                : "hover:bg-gray-50 text-[#1D2939]"
+                            }`}
+                          >
+                            <span className="font-medium">{emp.name}</span>
+                            {emp.employeeNo && (
+                              <span className="text-gray-400 ml-2 text-[10px]">#{emp.employeeNo}</span>
+                            )}
+                          </button>
+                        ))
+                      ) : (
                         <p className="text-center py-4 text-[11px] text-gray-400">No employees found</p>
                       )}
                     </div>
@@ -654,11 +1159,7 @@ const EmployeesAttendance = () => {
                   {/* CHECKIN PHOTO */}
                   <td className="px-6 py-5">
                     {row.photo ? (
-                      <img
-                        src={row.photo}
-                        alt={row.employeeName}
-                        className="w-10 h-10 rounded-full object-cover"
-                      />
+                      <img src={row.photo} alt={row.employeeName} className="w-10 h-10 rounded-full object-cover" />
                     ) : (
                       <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-400 font-bold text-[10px]">
                         {(row.employeeName || "").charAt(0)}
@@ -689,11 +1190,7 @@ const EmployeesAttendance = () => {
                   <td className="px-6 py-5">
                     <div className="flex justify-center">
                       {row.checkOut && row.checkOutPhoto ? (
-                        <img
-                          src={row.checkOutPhoto}
-                          alt={row.employeeName}
-                          className="w-10 h-10 rounded-full object-cover"
-                        />
+                        <img src={row.checkOutPhoto} alt={row.employeeName} className="w-10 h-10 rounded-full object-cover" />
                       ) : row.checkOut ? (
                         <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-400 font-bold text-[10px]">
                           {(row.employeeName || "").charAt(0)}
@@ -704,8 +1201,9 @@ const EmployeesAttendance = () => {
                     </div>
                   </td>
 
-                  <td className="px-6 py-5 text-right font-bold text-[#1D2939]">
-                    {row.logs}
+                  {/* LOGS COUNT */}
+                  <td className="px-6 py-5 text-right">
+                    <span className="font-bold text-[#1D2939] text-[13px]">{getLogsCount(row)}</span>
                   </td>
                 </tr>
               ))
@@ -719,6 +1217,54 @@ const EmployeesAttendance = () => {
           </tbody>
         </table>
       </div>
+
+      {/* PAGINATION */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-end gap-3 mt-6 py-4">
+          <button
+            onClick={() => setCurrentPage(Math.max(0, currentPage - 1))}
+            disabled={currentPage === 0}
+            className="p-2 text-gray-400 hover:text-[#034EA2] disabled:opacity-20 disabled:cursor-not-allowed transition-all"
+          >
+            <ChevronLeft className="w-5 h-5 stroke-[2.5]" />
+          </button>
+
+          <div className="flex items-center gap-2">
+            {(() => {
+              const rangeSize = 5;
+              let start = Math.max(0, currentPage - 2);
+              let end = Math.min(totalPages - 1, start + rangeSize - 1);
+              if (end - start + 1 < rangeSize) start = Math.max(0, end - rangeSize + 1);
+              const pages = [];
+              for (let i = start; i <= end; i++) pages.push(i);
+              return pages.map((pageIdx) => {
+                const isSelected = currentPage === pageIdx;
+                return (
+                  <button
+                    key={pageIdx}
+                    onClick={() => setCurrentPage(pageIdx)}
+                    className={`w-9 h-9 text-[13px] font-bold rounded-full transition-all duration-200 ${
+                      isSelected
+                        ? "bg-[#0A1120] text-white shadow-sm scale-105"
+                        : "text-gray-500 hover:text-gray-800 hover:bg-gray-50"
+                    }`}
+                  >
+                    {pageIdx + 1}
+                  </button>
+                );
+              });
+            })()}
+          </div>
+
+          <button
+            onClick={() => setCurrentPage(Math.min(totalPages - 1, currentPage + 1))}
+            disabled={currentPage === totalPages - 1}
+            className="p-2 text-[#4F46E5] hover:text-[#034EA2] disabled:opacity-20 disabled:cursor-not-allowed transition-all"
+          >
+            <ChevronRight className="w-5 h-5 stroke-[2.5]" />
+          </button>
+        </div>
+      )}
     </div>
   );
 };

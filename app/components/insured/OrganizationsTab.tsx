@@ -606,11 +606,797 @@
 
 
 
+// "use client";
+
+// import React, { useState, useEffect } from "react";
+// import Image from "next/image";
+// import { useRouter, useSearchParams } from "next/navigation";
+// import InsuredService from "@/app/service/insured.service";
+
+// const insuredService = new InsuredService();
+
+// export default function InsuredOrganizationsDashboard() {
+//   const router = useRouter();
+//   const searchParams = useSearchParams();
+
+//   const tabParam = searchParams.get("tab") || "organizations";
+//   const isDetailView = tabParam.startsWith("organizations/");
+//   const selectedOrgId = isDetailView ? tabParam.split("/")[1] : null;
+
+//   const [organizations, setOrganizations] = useState<any[]>([]);
+//   const [linkedBusinesses, setLinkedBusinesses] = useState<any[]>([]);
+//   const [selectedBusinessId, setSelectedBusinessId] = useState<string | null>(null);
+//   const [orgSearch, setOrgSearch] = useState("");
+//   const [bizSearch, setBizSearch] = useState("");
+//   const [isOrgActive, setIsOrgActive] = useState(true);
+//   const [loadingOrgs, setLoadingOrgs] = useState(true);
+//   const [loadingBiz, setLoadingBiz] = useState(false);
+//   const [currentPage] = useState(0);
+//   const pageSize = 25;
+
+//   // Fetch all organizations on mount
+//   useEffect(() => {
+//     const fetchOrgs = async () => {
+//       setLoadingOrgs(true);
+//       try {
+//         const res = await insuredService.getBusinessPOSorLocations(
+//           currentPage,
+//           pageSize,
+//           "Organization",
+//           ""
+//         );
+//         if ((res as any)?.data) {
+//           setOrganizations(Array.isArray((res as any).data?.data) ? (res as any).data.data : []);
+//         }
+//       } catch (err) {
+//         console.error("Failed to fetch organizations:", err);
+//       } finally {
+//         setLoadingOrgs(false);
+//       }
+//     };
+
+//     fetchOrgs();
+//   }, []);
+
+//   // Fetch businesses when an org is selected
+//   useEffect(() => {
+//     if (!selectedOrgId) {
+//       setLinkedBusinesses([]);
+//       setSelectedBusinessId(null);
+//       setBizSearch("");
+//       return;
+//     }
+
+//     const fetchBusinesses = async () => {
+//       setLoadingBiz(true);
+//       try {
+//         const res = await insuredService.getOrganizationBusinesses(selectedOrgId);
+//         if ((res as any)?.data) {
+//           setLinkedBusinesses(Array.isArray((res as any).data?.data) ? (res as any).data.data : []);
+//         }
+//       } catch (err) {
+//         console.error("Failed to fetch businesses:", err);
+//         setLinkedBusinesses([]);
+//       } finally {
+//         setLoadingBiz(false);
+//       }
+//     };
+
+//     fetchBusinesses();
+//   }, [selectedOrgId]);
+
+//   // Clear business selection when leaving detail view
+//   useEffect(() => {
+//     if (!isDetailView) {
+//       setSelectedBusinessId(null);
+//       setBizSearch("");
+//     }
+//   }, [isDetailView]);
+
+//   const currentOrg = organizations.find((o) => o._id === selectedOrgId);
+
+//   const filteredOrgs = organizations.filter((o) =>
+//     (`${o.first_name} ${o.last_name} ${o.company_name}`)
+//       .toLowerCase()
+//       .includes(orgSearch.toLowerCase())
+//   );
+
+//   const filteredBusinesses = linkedBusinesses.filter((b) =>
+//     (b.business?.name || "").toLowerCase().includes(bizSearch.toLowerCase())
+//   );
+
+//   const activeBusinessDetails = linkedBusinesses.find((b) => b._id === selectedBusinessId);
+
+//   const handleSelectOrg = (orgId: string) => {
+//     router.push(`/dashboard/insured?tab=organizations/${orgId}`);
+//   };
+
+//   const getInitials = (text: string) =>
+//     text?.split(" ").map((n) => n[0]).join("").substring(0, 2).toUpperCase() || "??";
+
+//   const formatDate = (dateStr: string) => {
+//     if (!dateStr) return "—";
+//     return new Date(dateStr).toLocaleString("en-US", {
+//       month: "short", day: "numeric", year: "numeric",
+//       hour: "numeric", minute: "2-digit", second: "2-digit", hour12: true,
+//     });
+//   };
+
+//   /* ==========================================================================================
+//      VIEW A: Main Org Grid
+//   ========================================================================================== */
+//   if (!selectedOrgId) {
+//     return (
+//       <div className="space-y-6 animate-in fade-in duration-200">
+//         <div className="flex justify-between items-center">
+//           <p className="text-[13px] text-gray-400">
+//             Showing{" "}
+//             <span className="text-[#1D2939] font-bold">1 - {filteredOrgs.length}</span> of{" "}
+//             <span className="text-[#1D2939] font-bold">{organizations.length}</span> Organizations
+//           </p>
+
+//           <div className="flex items-center gap-4">
+//             <div className="relative w-[320px]">
+//               <input
+//                 type="text"
+//                 placeholder="search"
+//                 value={orgSearch}
+//                 onChange={(e) => setOrgSearch(e.target.value)}
+//                 className="w-full bg-[#F2F4F7] border-none rounded-lg py-2.5 pl-4 pr-10 text-[13px] outline-none text-[#1D2939] placeholder-gray-400"
+//               />
+//               <div className="absolute right-3 top-1/2 -translate-y-1/2 opacity-30">
+//                 <Image src="/images/search.svg" alt="" width={16} height={16} />
+//               </div>
+//             </div>
+
+//             <button className="flex items-center gap-2 outline-none">
+//               <div className="relative">
+//                 <Image src="/images/filter.svg" alt="" width={20} height={20} />
+//                 <span className="absolute -top-1 -right-1 bg-[#034EA2] text-white text-[9px] w-4 h-4 rounded-full flex items-center justify-center font-bold">
+//                   0
+//                 </span>
+//               </div>
+//               <span className="text-[13px] font-bold text-[#1D2939]">Filter(s)</span>
+//             </button>
+//           </div>
+//         </div>
+
+//         {loadingOrgs ? (
+//           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+//             {[...Array(6)].map((_, i) => (
+//               <div key={i} className="h-48 bg-gray-50 animate-pulse rounded-2xl" />
+//             ))}
+//           </div>
+//         ) : filteredOrgs.length === 0 ? (
+//           <div className="text-center py-12 text-sm text-gray-400">No organizations found</div>
+//         ) : (
+//           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+//             {filteredOrgs.map((org) => (
+//               <div
+//                 key={org._id}
+//                 onClick={() => handleSelectOrg(org._id)}
+//                 className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all cursor-pointer group flex flex-col justify-between"
+//               >
+//                 <div>
+//                   <div className="flex justify-between items-start mb-6">
+//                     <div className="w-12 h-12 bg-[#F8FAFC] rounded-lg flex items-center justify-center text-[#034EA2] font-bold text-base border border-gray-100">
+//                       {getInitials(org.company_name || org.first_name)}
+//                     </div>
+//                     <div className="flex items-center gap-1.5">
+//                       <span className="w-1.5 h-1.5 rounded-full bg-[#475467]"></span>
+//                       <span className="text-[11px] font-semibold text-gray-400 tracking-wide uppercase">
+//                         {org.email_verified ? "Verified" : "Unverified"}
+//                       </span>
+//                     </div>
+//                   </div>
+
+//                   <h3 className="text-[15px] font-bold text-[#1D2939] mb-1 group-hover:text-[#034EA2] transition-colors line-clamp-1">
+//                     {org.company_name || `${org.first_name} ${org.last_name}`}
+//                   </h3>
+
+//                   <div className="inline-block px-4 py-1.5 bg-[#EEF2F6] text-[#475467] text-[11px] font-bold rounded-md mb-6 uppercase tracking-wider">
+//                     {org.membership?.business?.activationReference || "No compliance"}
+//                   </div>
+//                 </div>
+
+//                 <div className="flex items-center gap-2 text-gray-400 pt-2 border-t border-gray-50">
+//                   <Image src="/images/clock.svg" alt="" width={14} height={14} className="opacity-30" />
+//                   <p className="text-[11px]">
+//                     Created on: <span className="text-gray-500 font-medium">{formatDate(org.createdAt)}</span>
+//                   </p>
+//                 </div>
+//               </div>
+//             ))}
+//           </div>
+//         )}
+//       </div>
+//     );
+//   }
+
+//   /* ==========================================================================================
+//      VIEW B: Org Detail View
+//   ========================================================================================== */
+//   return (
+//     <div className="w-full space-y-6 animate-in fade-in duration-200">
+//       <div className="w-full bg-white p-6 rounded-2xl border border-gray-100 shadow-sm space-y-4">
+//         <div className="flex justify-end items-center">
+//           <div className="flex items-center gap-2.5">
+//             <span className="text-xs text-gray-400 font-medium">
+//               {isOrgActive ? "Active" : "Inactive"}
+//             </span>
+//             <button
+//               onClick={() => setIsOrgActive(!isOrgActive)}
+//               className={`w-9 h-5 flex items-center rounded-full p-0.5 transition-all duration-200 ${
+//                 isOrgActive ? "bg-[#E2E8F0] justify-end" : "bg-gray-200 justify-start"
+//               }`}
+//             >
+//               <span className="w-4 h-4 rounded-full bg-white shadow-sm" />
+//             </button>
+//           </div>
+//         </div>
+
+//         <div className="flex justify-between items-start">
+//           <div className="space-y-3">
+//             <h1 className="text-xl font-bold text-[#1D2939] tracking-tight">
+//               {currentOrg?.company_name || `${currentOrg?.first_name} ${currentOrg?.last_name}`}
+//             </h1>
+//             <div className="flex items-center gap-6 text-[13px] text-[#475467]">
+//               <div className="flex items-center gap-2">
+//                 <Image src="/images/mail.svg" alt="" width={15} height={15} className="opacity-40" />
+//                 <span>{currentOrg?.email}</span>
+//               </div>
+//               <div className="flex items-center gap-2">
+//                 <Image src="/images/phone.svg" alt="" width={14} height={14} className="opacity-40" />
+//                 <span>{currentOrg?.phone_number}</span>
+//               </div>
+//             </div>
+//           </div>
+
+//           <div className="flex flex-col items-end space-y-3">
+//             <button className="border border-gray-300 text-[#1D2939] text-xs font-bold px-4 py-2.5 rounded-lg hover:bg-gray-50 transition-colors">
+//               Add Reference
+//             </button>
+//             <div className="flex items-center gap-2 text-gray-400 text-[12px]">
+//               <Image src="/images/clock.svg" alt="" width={14} height={14} className="opacity-40" />
+//               <p>
+//                 Created on{" "}
+//                 <span className="text-gray-500 font-medium">
+//                   {formatDate(currentOrg?.createdAt)}
+//                 </span>
+//               </p>
+//             </div>
+//           </div>
+//         </div>
+//       </div>
+
+//       <div className="w-full grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+//         {/* BUSINESSES LIST */}
+//         <div className="lg:col-span-4 bg-white rounded-2xl border border-gray-100 p-4 shadow-sm space-y-4">
+//           <h3 className="text-[13px] font-bold text-gray-800">Businesses</h3>
+
+//           <div className="relative w-full">
+//             <input
+//               type="text"
+//               placeholder="search"
+//               value={bizSearch}
+//               onChange={(e) => setBizSearch(e.target.value)}
+//               className="w-full bg-[#F2F4F7] border-none rounded-lg py-2.5 pl-4 pr-10 text-[13px] outline-none text-[#1D2939] placeholder-gray-400"
+//             />
+//             <div className="absolute right-3 top-1/2 -translate-y-1/2 opacity-30">
+//               <Image src="/images/search.svg" alt="" width={14} height={14} />
+//             </div>
+//           </div>
+
+//           <p className="text-[11px] text-gray-400">
+//             Showing <span className="font-bold text-gray-600">{filteredBusinesses.length}</span> Businesses
+//           </p>
+
+//           <div className="space-y-1">
+//             {loadingBiz ? (
+//               <div className="space-y-2">
+//                 {[...Array(3)].map((_, i) => (
+//                   <div key={i} className="h-12 bg-gray-100 rounded-xl animate-pulse" />
+//                 ))}
+//               </div>
+//             ) : filteredBusinesses.length === 0 ? (
+//               <div className="text-center py-6 text-xs text-gray-400">No matching business entries.</div>
+//             ) : (
+//               filteredBusinesses.map((biz) => {
+//                 const isSelected = selectedBusinessId === biz._id;
+//                 return (
+//                   <div
+//                     key={biz._id}
+//                     onClick={() => setSelectedBusinessId(biz._id)}
+//                     className={`flex items-center gap-3 p-3 rounded-xl border transition-all cursor-pointer ${
+//                       isSelected
+//                         ? "bg-[#F8FAFC] border-gray-200 shadow-sm"
+//                         : "bg-white border-transparent hover:bg-gray-50/70"
+//                     }`}
+//                   >
+//                     <div className="w-8 h-8 rounded-md bg-[#F1F5F9] text-[#034EA2] flex items-center justify-center font-bold text-[11px] border border-gray-100">
+//                       {getInitials(biz.business?.name || "")}
+//                     </div>
+//                     <span className="text-[13px] font-bold text-[#1D2939]">{biz.business?.name}</span>
+//                   </div>
+//                 );
+//               })
+//             )}
+//           </div>
+//         </div>
+
+//         {/* BUSINESS DETAIL PANEL */}
+//         <div className="lg:col-span-8 bg-white rounded-2xl border border-gray-100 shadow-sm min-h-[400px] flex flex-col justify-center items-center p-6 w-full">
+//           {activeBusinessDetails ? (
+//             <div className="w-full h-full animate-in fade-in duration-150 flex flex-col justify-between">
+//               <div className="border border-gray-100 rounded-xl p-6 bg-white space-y-4 shadow-sm max-w-xl text-left">
+//                 <h2 className="text-[15px] font-bold text-[#1D2939]">
+//                   {activeBusinessDetails.business?.name}
+//                 </h2>
+//                 <div className="bg-[#F8FAFC] rounded-lg p-4 font-mono text-[12px] text-[#1D2939] space-y-2 border border-gray-50/50 leading-relaxed">
+//                   <p>
+//                     <span className="text-gray-400 font-sans font-semibold mr-2">EMAIL:</span>
+//                     {activeBusinessDetails.business?.emailAddress}
+//                   </p>
+//                   <p>
+//                     <span className="text-gray-400 font-sans font-semibold mr-2">STATUS:</span>
+//                     {activeBusinessDetails.business?.status}
+//                   </p>
+//                   {activeBusinessDetails.business?.activationReference && (
+//                     <p>
+//                       <span className="text-gray-400 font-sans font-semibold mr-2">COMPLIANCE:</span>
+//                       {activeBusinessDetails.business.activationReference}
+//                     </p>
+//                   )}
+//                 </div>
+//                 <div className="flex items-center gap-1.5 text-gray-400 text-[11px] font-medium">
+//                   <Image src="/images/clock.svg" alt="" width={13} height={13} className="opacity-40" />
+//                   <span>Created on {formatDate(activeBusinessDetails.business?.createdAt)}</span>
+//                 </div>
+//               </div>
+//             </div>
+//           ) : (
+//             <div className="text-center flex flex-col items-center justify-center space-y-3">
+//               <div className="p-3 bg-[#F8FAFC] rounded-xl border border-gray-100">
+//                 <Image src="/images/file-text.svg" alt="" width={24} height={24} className="opacity-40" />
+//               </div>
+//               <h4 className="text-sm font-bold text-[#1D2939]">Please select a business</h4>
+//               <p className="text-xs text-gray-400 font-medium">No business is selected</p>
+//             </div>
+//           )}
+//         </div>
+//       </div>
+//     </div>
+//   );
+// }
+
+// "use client";
+
+// import React, { useState, useEffect } from "react";
+// import Image from "next/image";
+// import { useRouter, useSearchParams } from "next/navigation";
+// import { ChevronLeft, ChevronRight } from "lucide-react";
+// import InsuredService from "@/app/service/insured.service";
+
+// const insuredService = new InsuredService();
+
+// export default function InsuredOrganizationsDashboard() {
+//   const router = useRouter();
+//   const searchParams = useSearchParams();
+
+//   const tabParam = searchParams.get("tab") || "organizations";
+//   const isDetailView = tabParam.startsWith("organizations/");
+//   const selectedOrgId = isDetailView ? tabParam.split("/")[1] : null;
+
+//   const [organizations, setOrganizations] = useState<any[]>([]);
+//   const [linkedBusinesses, setLinkedBusinesses] = useState<any[]>([]);
+//   const [selectedBusinessId, setSelectedBusinessId] = useState<string | null>(null);
+//   const [orgSearch, setOrgSearch] = useState("");
+//   const [bizSearch, setBizSearch] = useState("");
+//   const [isOrgActive, setIsOrgActive] = useState(true);
+//   const [loadingOrgs, setLoadingOrgs] = useState(true);
+//   const [loadingBiz, setLoadingBiz] = useState(false);
+//   const [currentPage, setCurrentPage] = useState(0);
+//   const [totalPages, setTotalPages] = useState(0);
+//   const [totalCount, setTotalCount] = useState(0);
+//   const pageSize = 25;
+
+//   // Fetch all organizations
+//   useEffect(() => {
+//     const fetchOrgs = async () => {
+//       setLoadingOrgs(true);
+//       try {
+//         const res = await insuredService.getBusinessPOSorLocations(
+//           currentPage,
+//           pageSize,
+//           "Organization",
+//           ""
+//         );
+//         if (res?.data) {
+//           setOrganizations(Array.isArray(res.data?.data) ? res.data.data : []);
+//           setTotalPages(res.data?.numOfPages || 0);
+//           setTotalCount(res.data?.totalNum || 0);
+//         }
+//       } catch (err) {
+//         console.error("Failed to fetch organizations:", err);
+//       } finally {
+//         setLoadingOrgs(false);
+//       }
+//     };
+
+//     fetchOrgs();
+//   }, [currentPage]);
+
+//   // Fetch businesses when an org is selected
+//   useEffect(() => {
+//     if (!selectedOrgId) {
+//       setLinkedBusinesses([]);
+//       setSelectedBusinessId(null);
+//       setBizSearch("");
+//       return;
+//     }
+
+//     const fetchBusinesses = async () => {
+//       setLoadingBiz(true);
+//       try {
+//         const res = await insuredService.getOrganizationBusinesses(selectedOrgId);
+//         if (res?.data) {
+//           setLinkedBusinesses(Array.isArray(res.data?.data) ? res.data.data : []);
+//         }
+//       } catch (err) {
+//         console.error("Failed to fetch businesses:", err);
+//         setLinkedBusinesses([]);
+//       } finally {
+//         setLoadingBiz(false);
+//       }
+//     };
+
+//     fetchBusinesses();
+//   }, [selectedOrgId]);
+
+//   // Clear on back navigation
+//   useEffect(() => {
+//     if (!isDetailView) {
+//       setSelectedBusinessId(null);
+//       setBizSearch("");
+//     }
+//   }, [isDetailView]);
+
+//   const currentOrg = organizations.find((o) => o._id === selectedOrgId);
+
+//   const filteredOrgs = organizations.filter((o) =>
+//     (`${o.first_name} ${o.last_name} ${o.company_name}`)
+//       .toLowerCase()
+//       .includes(orgSearch.toLowerCase())
+//   );
+
+//   const filteredBusinesses = linkedBusinesses.filter((b) =>
+//     (b.business?.name || "").toLowerCase().includes(bizSearch.toLowerCase())
+//   );
+
+//   const activeBusinessDetails = linkedBusinesses.find((b) => b._id === selectedBusinessId);
+
+//   const handleSelectOrg = (orgId: string) => {
+//     router.push(`/dashboard/insured?tab=organizations/${orgId}`);
+//   };
+
+//   const getInitials = (text: string) =>
+//     text?.split(" ").map((n) => n[0]).join("").substring(0, 2).toUpperCase() || "??";
+
+//   const formatDate = (dateStr: string) => {
+//     if (!dateStr) return "—";
+//     return new Date(dateStr).toLocaleString("en-US", {
+//       month: "short", day: "numeric", year: "numeric",
+//       hour: "numeric", minute: "2-digit", second: "2-digit", hour12: true,
+//     });
+//   };
+
+//   /* ==========================================================================================
+//      VIEW A: Main Org Grid
+//   ========================================================================================== */
+//   if (!selectedOrgId) {
+//     return (
+//       <div className="space-y-6 animate-in fade-in duration-200">
+//         <div className="flex justify-between items-center">
+//           <p className="text-[13px] text-gray-400">
+//             Showing{" "}
+//             <span className="text-[#1D2939] font-bold">
+//               {totalCount === 0 ? 0 : currentPage * pageSize + 1} -{" "}
+//               {Math.min((currentPage + 1) * pageSize, totalCount)}
+//             </span>{" "}
+//             of{" "}
+//             <span className="text-[#1D2939] font-bold">{totalCount}</span> Organizations
+//           </p>
+
+//           <div className="flex items-center gap-4">
+//             <div className="relative w-[320px]">
+//               <input
+//                 type="text"
+//                 placeholder="search"
+//                 value={orgSearch}
+//                 onChange={(e) => setOrgSearch(e.target.value)}
+//                 className="w-full bg-[#F2F4F7] border-none rounded-lg py-2.5 pl-4 pr-10 text-[13px] outline-none text-[#1D2939] placeholder-gray-400"
+//               />
+//               <div className="absolute right-3 top-1/2 -translate-y-1/2 opacity-30">
+//                 <Image src="/images/search.svg" alt="" width={16} height={16} />
+//               </div>
+//             </div>
+
+//             <button className="flex items-center gap-2 outline-none">
+//               <div className="relative">
+//                 <Image src="/images/filter.svg" alt="" width={20} height={20} />
+//                 <span className="absolute -top-1 -right-1 bg-[#034EA2] text-white text-[9px] w-4 h-4 rounded-full flex items-center justify-center font-bold">
+//                   0
+//                 </span>
+//               </div>
+//               <span className="text-[13px] font-bold text-[#1D2939]">Filter(s)</span>
+//             </button>
+//           </div>
+//         </div>
+
+//         {loadingOrgs ? (
+//           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+//             {[...Array(6)].map((_, i) => (
+//               <div key={i} className="h-48 bg-gray-50 animate-pulse rounded-2xl" />
+//             ))}
+//           </div>
+//         ) : filteredOrgs.length === 0 ? (
+//           <div className="text-center py-12 text-sm text-gray-400">No organizations found</div>
+//         ) : (
+//           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+//             {filteredOrgs.map((org) => (
+//               <div
+//                 key={org._id}
+//                 onClick={() => handleSelectOrg(org._id)}
+//                 className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all cursor-pointer group flex flex-col justify-between"
+//               >
+//                 <div>
+//                   <div className="flex justify-between items-start mb-6">
+//                     <div className="w-12 h-12 bg-[#F8FAFC] rounded-lg flex items-center justify-center text-[#034EA2] font-bold text-base border border-gray-100">
+//                       {getInitials(org.company_name || org.first_name)}
+//                     </div>
+//                     <div className="flex items-center gap-1.5">
+//                       <span className="w-1.5 h-1.5 rounded-full bg-[#475467]"></span>
+//                       <span className="text-[11px] font-semibold text-gray-400 tracking-wide uppercase">
+//                         {org.email_verified ? "Verified" : "Unverified"}
+//                       </span>
+//                     </div>
+//                   </div>
+
+//                   <h3 className="text-[15px] font-bold text-[#1D2939] mb-1 group-hover:text-[#034EA2] transition-colors line-clamp-1">
+//                     {org.company_name || `${org.first_name} ${org.last_name}`}
+//                   </h3>
+
+//                   <div className="inline-block px-4 py-1.5 bg-[#EEF2F6] text-[#475467] text-[11px] font-bold rounded-md mb-6 uppercase tracking-wider">
+//                     {org.membership?.business?.activationReference || "No compliance"}
+//                   </div>
+//                 </div>
+
+//                 <div className="flex items-center gap-2 text-gray-400 pt-2 border-t border-gray-50">
+//                   <Image src="/images/clock.svg" alt="" width={14} height={14} className="opacity-30" />
+//                   <p className="text-[11px]">
+//                     Created on: <span className="text-gray-500 font-medium">{formatDate(org.createdAt)}</span>
+//                   </p>
+//                 </div>
+//               </div>
+//             ))}
+//           </div>
+//         )}
+
+//         {/* PAGINATION */}
+//         {totalPages > 1 && (
+//           <div className="flex items-center justify-end gap-3 mt-6 py-4">
+//             <button
+//               onClick={() => setCurrentPage(Math.max(0, currentPage - 1))}
+//               disabled={currentPage === 0}
+//               className="p-2 text-gray-400 hover:text-[#034EA2] disabled:opacity-20 disabled:cursor-not-allowed transition-all"
+//             >
+//               <ChevronLeft className="w-5 h-5 stroke-[2.5]" />
+//             </button>
+
+//             <div className="flex items-center gap-2">
+//               {(() => {
+//                 const rangeSize = 5;
+//                 let start = Math.max(0, currentPage - 2);
+//                 let end = Math.min(totalPages - 1, start + rangeSize - 1);
+//                 if (end - start + 1 < rangeSize) start = Math.max(0, end - rangeSize + 1);
+//                 const pages = [];
+//                 for (let i = start; i <= end; i++) pages.push(i);
+//                 return pages.map((pageIdx) => {
+//                   const isSelected = currentPage === pageIdx;
+//                   return (
+//                     <button
+//                       key={pageIdx}
+//                       onClick={() => setCurrentPage(pageIdx)}
+//                       className={`w-9 h-9 text-[13px] font-bold rounded-full transition-all duration-200 ${
+//                         isSelected
+//                           ? "bg-[#0A1120] text-white shadow-sm scale-105"
+//                           : "text-gray-500 hover:text-gray-800 hover:bg-gray-50"
+//                       }`}
+//                     >
+//                       {pageIdx + 1}
+//                     </button>
+//                   );
+//                 });
+//               })()}
+//             </div>
+
+//             <button
+//               onClick={() => setCurrentPage(Math.min(totalPages - 1, currentPage + 1))}
+//               disabled={currentPage === totalPages - 1}
+//               className="p-2 text-[#4F46E5] hover:text-[#034EA2] disabled:opacity-20 disabled:cursor-not-allowed transition-all"
+//             >
+//               <ChevronRight className="w-5 h-5 stroke-[2.5]" />
+//             </button>
+//           </div>
+//         )}
+//       </div>
+//     );
+//   }
+
+//   /* ==========================================================================================
+//      VIEW B: Org Detail View
+//   ========================================================================================== */
+//   return (
+//     <div className="w-full space-y-6 animate-in fade-in duration-200">
+//       <div className="w-full bg-white p-6 rounded-2xl border border-gray-100 shadow-sm space-y-4">
+//         <div className="flex justify-end items-center">
+//           <div className="flex items-center gap-2.5">
+//             <span className="text-xs text-gray-400 font-medium">
+//               {isOrgActive ? "Active" : "Inactive"}
+//             </span>
+//             <button
+//               onClick={() => setIsOrgActive(!isOrgActive)}
+//               className={`w-9 h-5 flex items-center rounded-full p-0.5 transition-all duration-200 ${
+//                 isOrgActive ? "bg-[#E2E8F0] justify-end" : "bg-gray-200 justify-start"
+//               }`}
+//             >
+//               <span className="w-4 h-4 rounded-full bg-white shadow-sm" />
+//             </button>
+//           </div>
+//         </div>
+
+//         <div className="flex justify-between items-start">
+//           <div className="space-y-3">
+//             <h1 className="text-xl font-bold text-[#1D2939] tracking-tight">
+//               {currentOrg?.company_name || `${currentOrg?.first_name} ${currentOrg?.last_name}`}
+//             </h1>
+//             <div className="flex items-center gap-6 text-[13px] text-[#475467]">
+//               <div className="flex items-center gap-2">
+//                 <Image src="/images/mail.svg" alt="" width={15} height={15} className="opacity-40" />
+//                 <span>{currentOrg?.email}</span>
+//               </div>
+//               <div className="flex items-center gap-2">
+//                 <Image src="/images/phone.svg" alt="" width={14} height={14} className="opacity-40" />
+//                 <span>{currentOrg?.phone_number}</span>
+//               </div>
+//             </div>
+//           </div>
+
+//           <div className="flex flex-col items-end space-y-3">
+//             <button className="border border-gray-300 text-[#1D2939] text-xs font-bold px-4 py-2.5 rounded-lg hover:bg-gray-50 transition-colors">
+//               Add Reference
+//             </button>
+//             <div className="flex items-center gap-2 text-gray-400 text-[12px]">
+//               <Image src="/images/clock.svg" alt="" width={14} height={14} className="opacity-40" />
+//               <p>
+//                 Created on{" "}
+//                 <span className="text-gray-500 font-medium">
+//                   {formatDate(currentOrg?.createdAt)}
+//                 </span>
+//               </p>
+//             </div>
+//           </div>
+//         </div>
+//       </div>
+
+//       <div className="w-full grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+//         {/* BUSINESSES LIST */}
+//         <div className="lg:col-span-4 bg-white rounded-2xl border border-gray-100 p-4 shadow-sm space-y-4">
+//           <h3 className="text-[13px] font-bold text-gray-800">Businesses</h3>
+
+//           <div className="relative w-full">
+//             <input
+//               type="text"
+//               placeholder="search"
+//               value={bizSearch}
+//               onChange={(e) => setBizSearch(e.target.value)}
+//               className="w-full bg-[#F2F4F7] border-none rounded-lg py-2.5 pl-4 pr-10 text-[13px] outline-none text-[#1D2939] placeholder-gray-400"
+//             />
+//             <div className="absolute right-3 top-1/2 -translate-y-1/2 opacity-30">
+//               <Image src="/images/search.svg" alt="" width={14} height={14} />
+//             </div>
+//           </div>
+
+//           <p className="text-[11px] text-gray-400">
+//             Showing <span className="font-bold text-gray-600">{filteredBusinesses.length}</span> Businesses
+//           </p>
+
+//           <div className="space-y-1">
+//             {loadingBiz ? (
+//               <div className="space-y-2">
+//                 {[...Array(3)].map((_, i) => (
+//                   <div key={i} className="h-12 bg-gray-100 rounded-xl animate-pulse" />
+//                 ))}
+//               </div>
+//             ) : filteredBusinesses.length === 0 ? (
+//               <div className="text-center py-6 text-xs text-gray-400">No matching business entries.</div>
+//             ) : (
+//               filteredBusinesses.map((biz) => {
+//                 const isSelected = selectedBusinessId === biz._id;
+//                 return (
+//                   <div
+//                     key={biz._id}
+//                     onClick={() => setSelectedBusinessId(biz._id)}
+//                     className={`flex items-center gap-3 p-3 rounded-xl border transition-all cursor-pointer ${
+//                       isSelected
+//                         ? "bg-[#F8FAFC] border-gray-200 shadow-sm"
+//                         : "bg-white border-transparent hover:bg-gray-50/70"
+//                     }`}
+//                   >
+//                     <div className="w-8 h-8 rounded-md bg-[#F1F5F9] text-[#034EA2] flex items-center justify-center font-bold text-[11px] border border-gray-100">
+//                       {getInitials(biz.business?.name || "")}
+//                     </div>
+//                     <span className="text-[13px] font-bold text-[#1D2939]">{biz.business?.name}</span>
+//                   </div>
+//                 );
+//               })
+//             )}
+//           </div>
+//         </div>
+
+//         {/* BUSINESS DETAIL PANEL */}
+//         <div className="lg:col-span-8 bg-white rounded-2xl border border-gray-100 shadow-sm min-h-[400px] flex flex-col justify-center items-center p-6 w-full">
+//           {activeBusinessDetails ? (
+//             <div className="w-full h-full animate-in fade-in duration-150 flex flex-col justify-between">
+//               <div className="border border-gray-100 rounded-xl p-6 bg-white space-y-4 shadow-sm max-w-xl text-left">
+//                 <h2 className="text-[15px] font-bold text-[#1D2939]">
+//                   {activeBusinessDetails.business?.name}
+//                 </h2>
+//                 <div className="bg-[#F8FAFC] rounded-lg p-4 font-mono text-[12px] text-[#1D2939] space-y-2 border border-gray-50/50 leading-relaxed">
+//                   <p>
+//                     <span className="text-gray-400 font-sans font-semibold mr-2">EMAIL:</span>
+//                     {activeBusinessDetails.business?.emailAddress}
+//                   </p>
+//                   <p>
+//                     <span className="text-gray-400 font-sans font-semibold mr-2">STATUS:</span>
+//                     {activeBusinessDetails.business?.status}
+//                   </p>
+//                   {activeBusinessDetails.business?.activationReference && (
+//                     <p>
+//                       <span className="text-gray-400 font-sans font-semibold mr-2">COMPLIANCE:</span>
+//                       {activeBusinessDetails.business.activationReference}
+//                     </p>
+//                   )}
+//                 </div>
+//                 <div className="flex items-center gap-1.5 text-gray-400 text-[11px] font-medium">
+//                   <Image src="/images/clock.svg" alt="" width={13} height={13} className="opacity-40" />
+//                   <span>Created on {formatDate(activeBusinessDetails.business?.createdAt)}</span>
+//                 </div>
+//               </div>
+//             </div>
+//           ) : (
+//             <div className="text-center flex flex-col items-center justify-center space-y-3">
+//               <div className="p-3 bg-[#F8FAFC] rounded-xl border border-gray-100">
+//                 <Image src="/images/file-text.svg" alt="" width={24} height={24} className="opacity-40" />
+//               </div>
+//               <h4 className="text-sm font-bold text-[#1D2939]">Please select a business</h4>
+//               <p className="text-xs text-gray-400 font-medium">No business is selected</p>
+//             </div>
+//           )}
+//         </div>
+//       </div>
+//     </div>
+//   );
+// }
+
+
+
 "use client";
 
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import InsuredService from "@/app/service/insured.service";
 
 const insuredService = new InsuredService();
@@ -631,10 +1417,12 @@ export default function InsuredOrganizationsDashboard() {
   const [isOrgActive, setIsOrgActive] = useState(true);
   const [loadingOrgs, setLoadingOrgs] = useState(true);
   const [loadingBiz, setLoadingBiz] = useState(false);
-  const [currentPage] = useState(0);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+  const [totalCount, setTotalCount] = useState(0);
   const pageSize = 25;
 
-  // Fetch all organizations on mount
+  // Fetch all organizations
   useEffect(() => {
     const fetchOrgs = async () => {
       setLoadingOrgs(true);
@@ -644,9 +1432,11 @@ export default function InsuredOrganizationsDashboard() {
           pageSize,
           "Organization",
           ""
-        );
-        if ((res as any)?.data) {
-          setOrganizations(Array.isArray((res as any).data?.data) ? (res as any).data.data : []);
+        ) as any;
+        if (res?.data) {
+          setOrganizations(Array.isArray(res.data?.data) ? res.data.data : []);
+          setTotalPages(res.data?.numOfPages || 0);
+          setTotalCount(res.data?.totalNum || 0);
         }
       } catch (err) {
         console.error("Failed to fetch organizations:", err);
@@ -656,7 +1446,7 @@ export default function InsuredOrganizationsDashboard() {
     };
 
     fetchOrgs();
-  }, []);
+  }, [currentPage]);
 
   // Fetch businesses when an org is selected
   useEffect(() => {
@@ -670,9 +1460,9 @@ export default function InsuredOrganizationsDashboard() {
     const fetchBusinesses = async () => {
       setLoadingBiz(true);
       try {
-        const res = await insuredService.getOrganizationBusinesses(selectedOrgId);
-        if ((res as any)?.data) {
-          setLinkedBusinesses(Array.isArray((res as any).data?.data) ? (res as any).data.data : []);
+        const res = await insuredService.getOrganizationBusinesses(selectedOrgId) as any;
+        if (res?.data) {
+          setLinkedBusinesses(Array.isArray(res.data?.data) ? res.data.data : []);
         }
       } catch (err) {
         console.error("Failed to fetch businesses:", err);
@@ -685,7 +1475,7 @@ export default function InsuredOrganizationsDashboard() {
     fetchBusinesses();
   }, [selectedOrgId]);
 
-  // Clear business selection when leaving detail view
+  // Clear on back navigation
   useEffect(() => {
     if (!isDetailView) {
       setSelectedBusinessId(null);
@@ -731,8 +1521,12 @@ export default function InsuredOrganizationsDashboard() {
         <div className="flex justify-between items-center">
           <p className="text-[13px] text-gray-400">
             Showing{" "}
-            <span className="text-[#1D2939] font-bold">1 - {filteredOrgs.length}</span> of{" "}
-            <span className="text-[#1D2939] font-bold">{organizations.length}</span> Organizations
+            <span className="text-[#1D2939] font-bold">
+              {totalCount === 0 ? 0 : currentPage * pageSize + 1} -{" "}
+              {Math.min((currentPage + 1) * pageSize, totalCount)}
+            </span>{" "}
+            of{" "}
+            <span className="text-[#1D2939] font-bold">{totalCount}</span> Organizations
           </p>
 
           <div className="flex items-center gap-4">
@@ -807,6 +1601,54 @@ export default function InsuredOrganizationsDashboard() {
                 </div>
               </div>
             ))}
+          </div>
+        )}
+
+        {/* PAGINATION */}
+        {totalPages > 1 && (
+          <div className="flex items-center justify-end gap-3 mt-6 py-4">
+            <button
+              onClick={() => setCurrentPage(Math.max(0, currentPage - 1))}
+              disabled={currentPage === 0}
+              className="p-2 text-gray-400 hover:text-[#034EA2] disabled:opacity-20 disabled:cursor-not-allowed transition-all"
+            >
+              <ChevronLeft className="w-5 h-5 stroke-[2.5]" />
+            </button>
+
+            <div className="flex items-center gap-2">
+              {(() => {
+                const rangeSize = 5;
+                let start = Math.max(0, currentPage - 2);
+                let end = Math.min(totalPages - 1, start + rangeSize - 1);
+                if (end - start + 1 < rangeSize) start = Math.max(0, end - rangeSize + 1);
+                const pages = [];
+                for (let i = start; i <= end; i++) pages.push(i);
+                return pages.map((pageIdx) => {
+                  const isSelected = currentPage === pageIdx;
+                  return (
+                    <button
+                      key={pageIdx}
+                      onClick={() => setCurrentPage(pageIdx)}
+                      className={`w-9 h-9 text-[13px] font-bold rounded-full transition-all duration-200 ${
+                        isSelected
+                          ? "bg-[#0A1120] text-white shadow-sm scale-105"
+                          : "text-gray-500 hover:text-gray-800 hover:bg-gray-50"
+                      }`}
+                    >
+                      {pageIdx + 1}
+                    </button>
+                  );
+                });
+              })()}
+            </div>
+
+            <button
+              onClick={() => setCurrentPage(Math.min(totalPages - 1, currentPage + 1))}
+              disabled={currentPage === totalPages - 1}
+              className="p-2 text-[#4F46E5] hover:text-[#034EA2] disabled:opacity-20 disabled:cursor-not-allowed transition-all"
+            >
+              <ChevronRight className="w-5 h-5 stroke-[2.5]" />
+            </button>
           </div>
         )}
       </div>

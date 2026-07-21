@@ -42,23 +42,47 @@ export interface TransactionResponseItem {
 }
 
 export default class AccountsService {
-  async getAllAccounts(page: number = 0, limit: number = 25, type?: string) {
-    try {
-      // Added type into the params object sent to the backend
-      const res = await api.get("/accounts", { params: { page, limit, type } });
-      return {
-        status: res.status,
-        data: res.data,
-      };
-    } catch (error: any) {
-      console.error("Error fetching all accounts:", error);
-      return {
-        status: error?.response?.status || 500,
-        data: null,
-        error: error?.response?.data || error.message || error,
-      };
-    }
+  // async getAllAccounts(page: number = 0, limit: number = 25, type?: string) {
+  //   try {
+  //     // Added type into the params object sent to the backend
+  //     const res = await api.get("/accounts", { params: { page, limit, type } });
+  //     return {
+  //       status: res.status,
+  //       data: res.data,
+  //     };
+  //   } catch (error: any) {
+  //     console.error("Error fetching all accounts:", error);
+  //     return {
+  //       status: error?.response?.status || 500,
+  //       data: null,
+  //       error: error?.response?.data || error.message || error,
+  //     };
+  //   }
+// }
+
+  async getAllAccounts(page: number = 0, limit: number = 25, type?: string, search: string = '') {
+  try {
+    const res = await api.get("/accounts", {
+      params: {
+        page,
+        limit,
+        ...(type && { type }),
+        ...(search && { searchTerm: search }),
+      }
+    });
+    return {
+      status: res.status,
+      data: res.data,
+    };
+  } catch (error: any) {
+    console.error("Error fetching all accounts:", error);
+    return {
+      status: error?.response?.status || 500,
+      data: null,
+      error: error?.response?.data || error.message || error,
+    };
   }
+}
   
   async getAccountById(accountId: string) {
     try {

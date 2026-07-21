@@ -53,7 +53,10 @@ export default function SignInPage() {
 
         setLoading(false);
         toast.success(
-          "Login successful! Redirecting to two-factor authentication...",
+         <div>
+    <p className="font-semibold">Account signin successful!</p>
+    <p className="text-xs text-gray-500">2FA Options</p>
+  </div>
         );
         router.push("/two-fa");
       } else {

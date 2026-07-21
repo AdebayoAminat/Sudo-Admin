@@ -1,5 +1,6 @@
 import Header from "@/app/components/layout/Header";
 import Sidebar from "@/app/components/layout/Sidebar"; // Fixed the path here!
+import { AuthProvider } from "@/app/components/auth/AuthContext";
 
 export default function DashboardLayout({
   children,
@@ -7,12 +8,13 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   return (
+    <AuthProvider>
     <div className="flex min-h-screen bg-white">
-      {/* Sidebar remains fixed to the left */}
+    
       <Sidebar />
 
       <div className="flex-1 flex flex-col min-w-0">
-        {/* Header remains at the top */}
+        
         <Header />
 
         {/* Added 'p-10' for significant breathing room or 'p-8' for standard spacing */}
@@ -21,5 +23,6 @@ export default function DashboardLayout({
         </main>
       </div>
     </div>
+    </AuthProvider>
   );
 }

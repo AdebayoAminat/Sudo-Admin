@@ -302,7 +302,7 @@ export default function Header() {
     pathname.split("/").length > 3;
   const isInsuredDetails =
   pathname === "/dashboard/insured" &&
-  (searchParams.get("tab") || "").startsWith("organizations/");
+  (searchParams.get("tab") || "").startsWith("organizations/") || (searchParams.get("tab") || "").startsWith("agents/");
   const isGiftCardDetails =
   pathname.startsWith("/dashboard/giftCard") &&
   (searchParams.get("tab") || "").includes("/");

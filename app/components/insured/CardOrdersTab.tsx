@@ -212,6 +212,7 @@
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import InsuredService from "@/app/service/insured.service";
+import notify from "@/app/service/toast.service";
 
 const insuredService = new InsuredService();
 const STATUS_OPTIONS = ["Initiated", "Processing", "Dispatched", "Delivered", "Cancelled"];
@@ -266,9 +267,11 @@ export default function CardOrdersTab() {
           prev.map((o) => (o._id === selectedOrder._id ? { ...o, status: chosenStatus } : o))
         );
         setSelectedOrder(null);
+        notify.success("Order status updated");
       }
     } catch (err) {
       console.error("Failed to update card order:", err);
+      notify.error("Failed to update order");
     } finally {
       setUpdating(false);
     }

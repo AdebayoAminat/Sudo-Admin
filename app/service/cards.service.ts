@@ -2,22 +2,43 @@
 import api from "./api";
 
 export default class CardsService {
-  async getAllCardsForACustomer(customerId: string) {
-    try {
-      const res = await api.get(`/cards/customer/${customerId}`);
-      return {
-        status: res.status,
-        data: res.data,
-      };
-    } catch (error: any) {
-      console.error(`Error fetching cards for customer ${customerId}:`, error);
-      return {
-        status: error?.response?.status || 500,
-        data: null,
-        error: error?.response?.data || error.message || error,
-      };
-    }
+  // async getAllCardsForACustomer(customerId: string) {
+  //   try {
+  //     const res = await api.get(`/cards/customer/${customerId}`);
+  //     return {
+  //       status: res.status,
+  //       data: res.data,
+  //     };
+  //   } catch (error: any) {
+  //     console.error(`Error fetching cards for customer ${customerId}:`, error);
+  //     return {
+  //       status: error?.response?.status || 500,
+  //       data: null,
+  //       error: error?.response?.data || error.message || error,
+  //     };
+  //   }
+  // }
+
+  async getAllCardsForACustomer(page: number = 0, limit: number = 25, type?: string, search: string = '') {
+  try {
+    const res = await api.get("/cards", {
+      params: {
+        page,
+        limit,
+        ...(type && { type }),
+        ...(search && { searchTerm: search }),
+      }
+    });
+    return { status: res.status, data: res.data };
+  } catch (error: any) {
+    console.error("Error fetching cards:", error);
+    return {
+      status: error?.response?.status || 500,
+      data: null,
+      error: error?.response?.data || error.message || error,
+    };
   }
+}
 
   async getAllCardsTransactions() {
     try {

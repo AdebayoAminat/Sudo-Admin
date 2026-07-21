@@ -865,7 +865,7 @@ export default function AccountDetailsPage({ params }: PageProps) {
               ))
             ) : (
               <div className="text-center py-12 text-gray-400 text-sm">
-                No history references found for this account instance.
+                No transaction history found.
               </div>
             )}
 
@@ -926,7 +926,7 @@ export default function AccountDetailsPage({ params }: PageProps) {
               </div>
             </div>
 
-            <div>
+            {/* <div>
               <label className="text-[12px] text-gray-400 block mb-2">Bank Name</label>
               <div className="flex justify-between items-center p-3 bg-gray-50/50 border border-gray-100 rounded-lg">
                 <span className="text-[13px] font-medium">{data?.bankName}</span>
@@ -934,7 +934,7 @@ export default function AccountDetailsPage({ params }: PageProps) {
                   <Image src="/images/copy.svg" alt="copy" width={16} height={16} />
                 </button>
               </div>
-            </div>
+            </div> */}
 
             <div>
               <label className="text-[12px] text-gray-400 block mb-2">Account Number</label>
